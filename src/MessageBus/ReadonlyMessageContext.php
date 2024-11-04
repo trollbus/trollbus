@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Kenny1911\SisyphBus\MessageBus;
 
 use Kenny1911\SisyphBus\Message\Message;
+use Kenny1911\SisyphBus\MessageBus\MessageId\Exception\MessageIdNotSet;
+use Kenny1911\SisyphBus\MessageBus\MessageId\MessageId;
 
 /**
  * @template-covariant TResult
@@ -35,6 +37,15 @@ abstract class ReadonlyMessageContext
     public function getMessage(): Message
     {
         return $this->envelop->message;
+    }
+
+    /**
+     * @return non-empty-string
+     * @throws MessageIdNotSet
+     */
+    public function getMessageId(): string
+    {
+        return $this->getStamp(MessageId::class)?->messageId ?? throw new MessageIdNotSet('Message id not set.');
     }
 
     /**
