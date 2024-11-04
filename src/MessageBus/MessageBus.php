@@ -23,8 +23,28 @@ final class MessageBus
      */
     public function dispatch(Message|Envelop $messageOrEnvelop): mixed
     {
-        $envelop = Envelop::wrap($messageOrEnvelop);
+        return $this->handleContext($this->startContext($messageOrEnvelop));
+    }
 
-        return $this->handlerRegistry->get($envelop->message::class)->handle($envelop);
+    /**
+     * @template TResult
+     * @template TMessage of Message<TResult>
+     * @param TMessage|Envelop<TResult, TMessage> $messageOrEnvelop
+     * @return MessageContext<TResult, TMessage>
+     */
+    public function startContext(Message|Envelop $messageOrEnvelop): MessageContext
+    {
+        return MessageContext::start($this, $messageOrEnvelop);
+    }
+
+    /**
+     * @template TResult
+     * @template TMessage of Message<TResult>
+     * @param MessageContext<TResult, TMessage> $messageContext
+     * @return (TResult is void ? null : TResult)
+     */
+    public function handleContext(MessageContext $messageContext): mixed
+    {
+        return $this->handlerRegistry->get($messageContext->getMessageClass())->handle($messageContext);
     }
 }

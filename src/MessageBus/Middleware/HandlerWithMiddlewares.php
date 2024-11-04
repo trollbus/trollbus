@@ -7,6 +7,7 @@ namespace Kenny1911\SisyphBus\MessageBus\Middleware;
 use Kenny1911\SisyphBus\Message\Message;
 use Kenny1911\SisyphBus\MessageBus\Envelop;
 use Kenny1911\SisyphBus\MessageBus\Handler;
+use Kenny1911\SisyphBus\MessageBus\MessageContext;
 
 /**
  * @template TResult
@@ -31,8 +32,8 @@ final class HandlerWithMiddlewares implements Handler
         $this->middlewares = $middlewares;
     }
 
-    public function handle(Envelop $envelop): mixed
+    public function handle(MessageContext $messageContext): mixed
     {
-        return Pipeline::handle($envelop, $this->inner, $this->middlewares);
+        return Pipeline::handle($messageContext, $this->inner, $this->middlewares);
     }
 }

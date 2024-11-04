@@ -8,6 +8,7 @@ use Kenny1911\SisyphBus\Message\Event;
 use Kenny1911\SisyphBus\Message\Message;
 use Kenny1911\SisyphBus\MessageBus\Envelop;
 use Kenny1911\SisyphBus\MessageBus\Handler;
+use Kenny1911\SisyphBus\MessageBus\MessageContext;
 
 /**
  * @template TMessage of Event
@@ -26,10 +27,10 @@ final class EventHandler implements Handler
         $this->handlers = $handlers;
     }
 
-    public function handle(Envelop $envelop): mixed
+    public function handle(MessageContext $messageContext): mixed
     {
         foreach ($this->handlers as $handler) {
-            $handler->handle($envelop);
+            $handler->handle($messageContext);
         }
 
         return null;

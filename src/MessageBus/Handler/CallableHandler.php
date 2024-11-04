@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Kenny1911\SisyphBus\MessageBus\Handler;
 
 use Kenny1911\SisyphBus\Message\Message;
-use Kenny1911\SisyphBus\MessageBus\Envelop;
 use Kenny1911\SisyphBus\MessageBus\Handler;
+use Kenny1911\SisyphBus\MessageBus\MessageContext;
 
 /**
  * @template TResult
@@ -15,19 +15,19 @@ use Kenny1911\SisyphBus\MessageBus\Handler;
  */
 final class CallableHandler implements Handler
 {
-    /** @var callable(Envelop<TResult, TMessage>): TResult */
+    /** @var callable(MessageContext<TResult, TMessage>): TResult */
     private mixed $callable;
 
     /**
-     * @param callable(Envelop<TResult, TMessage>): TResult $handler
+     * @param callable(MessageContext<TResult, TMessage>): TResult $handler
      */
     public function __construct(callable $handler)
     {
         $this->callable = $handler;
     }
 
-    public function handle(Envelop $envelop): mixed
+    public function handle(MessageContext $messageContext): mixed
     {
-        return ($this->callable)($envelop);
+        return ($this->callable)($messageContext);
     }
 }
