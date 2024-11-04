@@ -5,14 +5,23 @@ declare(strict_types=1);
 namespace Kenny1911\SisyphBus\MessageBus;
 
 use Kenny1911\SisyphBus\Message\Message;
+use Kenny1911\SisyphBus\MessageBus\Middleware\Middleware;
+use Kenny1911\SisyphBus\MessageBus\Middleware\Pipeline;
 
 final class MessageBus
 {
     private readonly HandlerRegistry $handlerRegistry;
 
-    public function __construct(HandlerRegistry $handlerRegistry)
+    /** @var iterable<Middleware> */
+    private readonly iterable $middlewares;
+
+    /**
+     * @param iterable<Middleware> $middlewares
+     */
+    public function __construct(HandlerRegistry $handlerRegistry, iterable $middlewares = [])
     {
         $this->handlerRegistry = $handlerRegistry;
+        $this->middlewares = $middlewares;
     }
 
     /**
@@ -45,6 +54,10 @@ final class MessageBus
      */
     public function handleContext(MessageContext $messageContext): mixed
     {
-        return $this->handlerRegistry->get($messageContext->getMessageClass())->handle($messageContext);
+        return Pipeline::handle(
+            $messageContext,
+            $this->handlerRegistry->get($messageContext->getMessageClass()),
+            $this->middlewares,
+        );
     }
 }
