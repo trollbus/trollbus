@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Kenny1911\SisyphBus\MessageBus\Middleware;
 
 use Kenny1911\SisyphBus\Message\Message;
+use Kenny1911\SisyphBus\MessageBus\Envelop;
 use Kenny1911\SisyphBus\MessageBus\Handler;
 
 /**
@@ -13,8 +14,8 @@ use Kenny1911\SisyphBus\MessageBus\Handler;
  */
 final class Pipeline
 {
-    /** @var TMessage */
-    private readonly Message $message;
+    /** @var Envelop<TResult, TMessage> */
+    private readonly Envelop $envelop;
 
     /** @var Handler<TResult, TMessage> */
     private readonly Handler $handler;
@@ -25,13 +26,13 @@ final class Pipeline
     private bool $handled = false;
 
     /**
-     * @param TMessage $message
+     * @param Envelop<TResult, TMessage> $envelop
      * @param Handler<TResult, TMessage> $handler
      * @param list<Middleware> $middlewares
      */
-    public function __construct(Message $message, Handler $handler, array $middlewares)
+    public function __construct(Envelop $envelop, Handler $handler, array $middlewares)
     {
-        $this->message = $message;
+        $this->envelop = $envelop;
         $this->handler = $handler;
         $this->middlewares = $middlewares;
     }
@@ -39,16 +40,16 @@ final class Pipeline
     /**
      * @template TTResult
      * @template TTMessage of Message<TTResult>
-     * @param TTMessage $message
+     * @param Envelop<TTResult, TTMessage> $envelop
      * @param Handler<TTResult, TTMessage> $handler
      * @param iterable<Middleware> $middlewares
      * @return (TTResult is void ? null : TTResult)
      */
-    public static function handle(Message $message, Handler $handler, iterable $middlewares): mixed
+    public static function handle(Envelop $envelop, Handler $handler, iterable $middlewares): mixed
     {
         $middlewares = $middlewares instanceof \Traversable ? iterator_to_array($middlewares, false) : array_values($middlewares);
 
-        return (new self($message, $handler, $middlewares))->continue();
+        return (new self($envelop, $handler, $middlewares))->continue();
     }
 
     /**
@@ -64,11 +65,11 @@ final class Pipeline
         $middleware = array_shift($this->middlewares);
 
         if (null !== $middleware) {
-            return $middleware->handle($this->message, $this);
+            return $middleware->handle($this->envelop, $this);
         }
 
         $this->handled = true;
 
-        return $this->handler->handle($this->message);
+        return $this->handler->handle($this->envelop);
     }
 }

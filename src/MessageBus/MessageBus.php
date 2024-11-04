@@ -18,11 +18,13 @@ final class MessageBus
     /**
      * @template TResult
      * @template TMessage of Message<TResult>
-     * @param TMessage $message
+     * @param TMessage|Envelop<TResult, TMessage> $messageOrEnvelop
      * @return (TResult is void ? null : TResult)
      */
-    public function dispatch(Message $message): mixed
+    public function dispatch(Message|Envelop $messageOrEnvelop): mixed
     {
-        return $this->handlerRegistry->get($message::class)->handle($message);
+        $envelop = Envelop::wrap($messageOrEnvelop);
+
+        return $this->handlerRegistry->get($envelop->message::class)->handle($envelop);
     }
 }

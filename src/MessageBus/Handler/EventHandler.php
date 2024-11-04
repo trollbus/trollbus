@@ -6,6 +6,7 @@ namespace Kenny1911\SisyphBus\MessageBus\Handler;
 
 use Kenny1911\SisyphBus\Message\Event;
 use Kenny1911\SisyphBus\Message\Message;
+use Kenny1911\SisyphBus\MessageBus\Envelop;
 use Kenny1911\SisyphBus\MessageBus\Handler;
 
 /**
@@ -25,10 +26,10 @@ final class EventHandler implements Handler
         $this->handlers = $handlers;
     }
 
-    public function handle(Message $message): mixed
+    public function handle(Envelop $envelop): mixed
     {
         foreach ($this->handlers as $handler) {
-            $handler->handle($message);
+            $handler->handle($envelop);
         }
 
         return null;

@@ -13,8 +13,8 @@ use Kenny1911\SisyphBus\Message\Message;
 interface Handler
 {
     /**
-     * @param TMessage $message
+     * @param Envelop<TResult, TMessage> $envelop
      * @return (TResult is void ? null : TResult)
      */
-    public function handle(Message $message): mixed;
+    public function handle(Envelop $envelop): mixed;
 }
