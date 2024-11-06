@@ -28,6 +28,7 @@ final class LogMiddleware implements Middleware
     {
         $this->logger->info('Start handle message {message_class}.', [
             'message_class' => $messageContext->getMessageClass(),
+            'handler_id' => $pipeline->id(),
             'envelop' => $messageContext->envelop,
         ]);
 
@@ -36,6 +37,7 @@ final class LogMiddleware implements Middleware
 
             $this->logger->info('Message {message_class} success handled.', [
                 'message_class' => $messageContext->getMessageClass(),
+                'handler_id' => $pipeline->id(),
                 'envelop' => $messageContext->envelop,
             ]);
 
@@ -43,6 +45,7 @@ final class LogMiddleware implements Middleware
         } catch (\Throwable $e) {
             $this->logger->error('Failed to handle {message_class}.', [
                 'message_class' => $messageContext->getMessageClass(),
+                'handler_id' => $pipeline->id(),
                 'envelop' => $messageContext->envelop,
                 'exception' => $e,
             ]);
