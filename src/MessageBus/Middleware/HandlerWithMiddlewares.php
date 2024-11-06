@@ -32,6 +32,11 @@ final class HandlerWithMiddlewares implements Handler
         $this->middlewares = $middlewares;
     }
 
+    public function id(): string
+    {
+        return $this->inner->id();
+    }
+
     public function handle(MessageContext $messageContext): mixed
     {
         return Pipeline::handle($messageContext, $this->inner, $this->middlewares);

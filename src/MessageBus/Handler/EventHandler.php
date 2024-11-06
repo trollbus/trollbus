@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace Kenny1911\SisyphBus\MessageBus\Handler;
 
 use Kenny1911\SisyphBus\Message\Event;
-use Kenny1911\SisyphBus\Message\Message;
-use Kenny1911\SisyphBus\MessageBus\Envelop;
 use Kenny1911\SisyphBus\MessageBus\Handler;
 use Kenny1911\SisyphBus\MessageBus\MessageContext;
 
@@ -25,6 +23,22 @@ final class EventHandler implements Handler
     public function __construct(iterable $handlers)
     {
         $this->handlers = $handlers;
+    }
+
+    /**
+     * @throws \JsonException
+     */
+    public function id(): string
+    {
+        $ids = [];
+
+        foreach ($this->handlers as $handler) {
+            $ids[] = $handler;
+        }
+
+        sort($ids);
+
+        return json_encode($ids, JSON_THROW_ON_ERROR);
     }
 
     public function handle(MessageContext $messageContext): mixed

@@ -54,6 +54,14 @@ final class Pipeline
     }
 
     /**
+     * @return non-empty-string
+     */
+    public function id(): string
+    {
+        return $this->handler->id();
+    }
+
+    /**
      * @return (TResult is void ? null : TResult)
      */
     public function continue(): mixed

@@ -15,15 +15,25 @@ use Kenny1911\SisyphBus\MessageBus\MessageContext;
  */
 final class CallableHandler implements Handler
 {
+    /** @var non-empty-string */
+    public readonly string $id;
+
     /** @var callable(MessageContext<TResult, TMessage>): TResult */
     private mixed $callable;
 
     /**
+     * @param non-empty-string $id
      * @param callable(MessageContext<TResult, TMessage>): TResult $handler
      */
-    public function __construct(callable $handler)
+    public function __construct(string $id, callable $handler)
     {
+        $this->id = $id;
         $this->callable = $handler;
+    }
+
+    public function id(): string
+    {
+        return $this->id;
     }
 
     public function handle(MessageContext $messageContext): mixed

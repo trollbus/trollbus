@@ -13,6 +13,11 @@ use Kenny1911\SisyphBus\Message\Message;
 interface Handler
 {
     /**
+     * @return non-empty-string
+     */
+    public function id(): string;
+
+    /**
      * @param MessageContext<TResult, TMessage> $messageContext
      * @return (TResult is void ? null : TResult)
      */
