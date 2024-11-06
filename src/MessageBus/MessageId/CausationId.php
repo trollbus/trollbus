@@ -8,13 +8,13 @@ use Kenny1911\SisyphBus\MessageBus\Stamp;
 
 final class CausationId implements Stamp
 {
-    /** @var non-empty-string */
-    public readonly string $causationId;
+    /** @var non-empty-string|null */
+    public readonly ?string $causationId;
 
     /**
-     * @param non-empty-string $causationId
+     * @param non-empty-string|null $causationId
      */
-    public function __construct(string $causationId)
+    public function __construct(?string $causationId)
     {
         $this->causationId = $causationId;
     }

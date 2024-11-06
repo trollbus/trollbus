@@ -20,11 +20,7 @@ final class CausationIdMiddleware implements Middleware
             return $pipeline->continue();
         }
 
-        if (null === $messageContext->parent) {
-            return $pipeline->continue();
-        }
-
-        $messageContext->addStamps(new CausationId($messageContext->parent->getMessageId()));
+        $messageContext->addStamps(new CausationId($messageContext->parent?->getMessageId() ?? null));
 
         return $pipeline->continue();
     }
