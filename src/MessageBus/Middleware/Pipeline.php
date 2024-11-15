@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Kenny1911\SisyphBus\MessageBus\Middleware;
 
 use Kenny1911\SisyphBus\Message\Message;
-use Kenny1911\SisyphBus\MessageBus\Envelop;
 use Kenny1911\SisyphBus\MessageBus\Handler;
 use Kenny1911\SisyphBus\MessageBus\MessageContext;
 
@@ -21,17 +20,17 @@ final class Pipeline
     /** @var Handler<TResult, TMessage> */
     private readonly Handler $handler;
 
-    /** @var list<Middleware> */
-    private array $middlewares;
+    /** @var \Iterator<Middleware> */
+    private readonly \Iterator $middlewares;
 
     private bool $handled = false;
 
     /**
      * @param MessageContext<TResult, TMessage> $messageContext
      * @param Handler<TResult, TMessage> $handler
-     * @param list<Middleware> $middlewares
+     * @param \Iterator<Middleware> $middlewares
      */
-    public function __construct(MessageContext $messageContext, Handler $handler, array $middlewares)
+    private function __construct(MessageContext $messageContext, Handler $handler, \Iterator $middlewares)
     {
         $this->messageContext = $messageContext;
         $this->handler = $handler;
@@ -48,7 +47,7 @@ final class Pipeline
      */
     public static function handle(MessageContext $messageContext, Handler $handler, iterable $middlewares): mixed
     {
-        $middlewares = $middlewares instanceof \Traversable ? iterator_to_array($middlewares, false) : array_values($middlewares);
+        $middlewares = \is_array($middlewares) ? new \ArrayIterator($middlewares) : new \IteratorIterator($middlewares);
 
         return (new self($messageContext, $handler, $middlewares))->continue();
     }
@@ -70,10 +69,11 @@ final class Pipeline
             throw new \LogicException('Pipeline already handled.');
         }
 
-        /** @var Middleware|null $middleware */
-        $middleware = array_shift($this->middlewares);
+        if ($this->middlewares->valid()) {
+            /** @var Middleware $middleware */
+            $middleware = $this->middlewares->current();
+            $this->middlewares->next();
 
-        if (null !== $middleware) {
             return $middleware->handle($this->messageContext, $this);
         }
 
