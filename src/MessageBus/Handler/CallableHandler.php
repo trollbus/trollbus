@@ -16,7 +16,7 @@ use Kenny1911\SisyphBus\MessageBus\MessageContext;
 final class CallableHandler implements Handler
 {
     /** @var non-empty-string */
-    public readonly string $id;
+    private readonly string $id;
 
     /** @var callable(MessageContext<TResult, TMessage>): TResult */
     private mixed $callable;
