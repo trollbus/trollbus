@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Kenny1911\SisyphBus\MessageBus;
 
 use Kenny1911\SisyphBus\Message\Message;
+use Kenny1911\SisyphBus\MessageBus\HandlerRegistry\ArrayHandlerRegistry;
 use Kenny1911\SisyphBus\MessageBus\Middleware\Middleware;
 use Kenny1911\SisyphBus\MessageBus\Middleware\Pipeline;
 
@@ -18,7 +19,7 @@ final class MessageBus
     /**
      * @param iterable<Middleware> $middlewares
      */
-    public function __construct(HandlerRegistry $handlerRegistry, iterable $middlewares = [])
+    public function __construct(HandlerRegistry $handlerRegistry = new ArrayHandlerRegistry(), iterable $middlewares = [])
     {
         $this->handlerRegistry = $handlerRegistry;
         $this->middlewares = $middlewares;

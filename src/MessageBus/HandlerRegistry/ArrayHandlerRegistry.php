@@ -15,7 +15,7 @@ final class ArrayHandlerRegistry extends BaseHandlerRegistry
     /**
      * @param array<class-string<Handler>, Handler> $handlers
      */
-    public function __construct(array $handlers)
+    public function __construct(array $handlers = [])
     {
         $this->handlers = $handlers;
     }
