@@ -31,7 +31,7 @@ abstract class BaseHandlerRegistry implements HandlerRegistry
 
         if (is_subclass_of($messageClass, Event::class)) {
             /** @var CallableHandler<TResult, TMessage> */
-            return $this->nullEventHandler ?? new CallableHandler('null event handler', static fn(): mixed => null);
+            return $this->nullEventHandler ??= new CallableHandler('null event handler', static fn(): mixed => null);
         }
 
         throw new HandlerNotFound('Message handler not found.');
