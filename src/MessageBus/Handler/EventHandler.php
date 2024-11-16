@@ -33,7 +33,7 @@ final class EventHandler implements Handler
         $ids = [];
 
         foreach ($this->handlers as $handler) {
-            $ids[] = $handler;
+            $ids[] = $handler->id();
         }
 
         sort($ids);
