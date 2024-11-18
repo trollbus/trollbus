@@ -25,6 +25,8 @@ final class Pipeline
 
     private bool $handled = false;
 
+    private bool $started = false;
+
     /**
      * @param MessageContext<TResult, TMessage> $messageContext
      * @param Handler<TResult, TMessage> $handler
@@ -69,12 +71,14 @@ final class Pipeline
             throw new \LogicException('Pipeline already handled.');
         }
 
-        if ($this->middlewares->valid()) {
-            /** @var Middleware $middleware */
-            $middleware = $this->middlewares->current();
+        if ($this->started) {
             $this->middlewares->next();
+        } else {
+            $this->started = true;
+        }
 
-            return $middleware->handle($this->messageContext, $this);
+        if ($this->middlewares->valid()) {
+            return $this->middlewares->current()->handle($this->messageContext, $this);
         }
 
         $this->handled = true;
