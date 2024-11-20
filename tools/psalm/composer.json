@@ -1,5 +1,9 @@
 {
     "require": {
         "vimeo/psalm": "^5.26"
+    },
+    "replace": {
+        "amphp/amp": "*",
+        "amphp/byte-stream": "*"
     }
 }
