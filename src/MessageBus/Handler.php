@@ -9,8 +9,9 @@ use Kenny1911\SisyphBus\Message\Message;
 /**
  * @template TResult
  * @template TMessage of Message<TResult>
+ * @extends ReadonlyHandler<TResult, TMessage>
  */
-interface Handler
+interface Handler extends ReadonlyHandler
 {
     /**
      * @return non-empty-string
