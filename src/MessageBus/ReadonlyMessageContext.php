@@ -45,7 +45,7 @@ abstract class ReadonlyMessageContext
      */
     public function getMessageId(): string
     {
-        return $this->getStamp(MessageId::class)?->messageId ?? throw new MessageIdNotSet('Message id not set.');
+        return $this->envelop->getMessageId();
     }
 
     /**
@@ -53,7 +53,7 @@ abstract class ReadonlyMessageContext
      */
     public function getMessageClass(): string
     {
-        return $this->getMessage()::class;
+        return $this->envelop->getMessageClass();
     }
 
     /**

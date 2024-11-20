@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Kenny1911\SisyphBus\MessageBus;
 
 use Kenny1911\SisyphBus\Message\Message;
+use Kenny1911\SisyphBus\MessageBus\MessageId\Exception\MessageIdNotSet;
+use Kenny1911\SisyphBus\MessageBus\MessageId\MessageId;
 
 /**
  * @template-covariant TResult
@@ -44,6 +46,23 @@ final class Envelope
 
         /** @var Envelope<TTResult, TTMessage> $envelop */
         return $envelop->withStamps(...$stamps);
+    }
+
+    /**
+     * @return non-empty-string
+     * @throws MessageIdNotSet
+     */
+    public function getMessageId(): string
+    {
+        return $this->getStamp(MessageId::class)?->messageId ?? throw new MessageIdNotSet('Message id not set.');
+    }
+
+    /**
+     * @return class-string<TMessage>
+     */
+    public function getMessageClass(): string
+    {
+        return $this->message::class;
     }
 
     /**
