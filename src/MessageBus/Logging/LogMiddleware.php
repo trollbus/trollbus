@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Kenny1911\SisyphBus\MessageBus\Logging;
 
 use Kenny1911\SisyphBus\Message\Message;
-use Kenny1911\SisyphBus\MessageBus\Envelop;
+use Kenny1911\SisyphBus\MessageBus\Envelope;
 use Kenny1911\SisyphBus\MessageBus\MessageContext;
 use Kenny1911\SisyphBus\MessageBus\Middleware\Middleware;
 use Kenny1911\SisyphBus\MessageBus\Middleware\Pipeline;

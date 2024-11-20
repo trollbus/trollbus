@@ -28,10 +28,10 @@ final class MessageBus
     /**
      * @template TResult
      * @template TMessage of Message<TResult>
-     * @param TMessage|Envelop<TResult, TMessage> $messageOrEnvelop
+     * @param TMessage|Envelope<TResult, TMessage> $messageOrEnvelop
      * @return (TResult is void ? null : TResult)
      */
-    public function dispatch(Message|Envelop $messageOrEnvelop): mixed
+    public function dispatch(Message|Envelope $messageOrEnvelop): mixed
     {
         return $this->handleContext($this->startContext($messageOrEnvelop));
     }
@@ -39,10 +39,10 @@ final class MessageBus
     /**
      * @template TResult
      * @template TMessage of Message<TResult>
-     * @param TMessage|Envelop<TResult, TMessage> $messageOrEnvelop
+     * @param TMessage|Envelope<TResult, TMessage> $messageOrEnvelop
      * @return MessageContext<TResult, TMessage>
      */
-    public function startContext(Message|Envelop $messageOrEnvelop): MessageContext
+    public function startContext(Message|Envelope $messageOrEnvelop): MessageContext
     {
         return MessageContext::start($this, $messageOrEnvelop);
     }

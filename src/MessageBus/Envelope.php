@@ -10,7 +10,7 @@ use Kenny1911\SisyphBus\Message\Message;
  * @template-covariant TResult
  * @template-covariant TMessage of Message<TResult>
  */
-final class Envelop
+final class Envelope
 {
     /** @var TMessage */
     public readonly Message $message;
@@ -31,8 +31,8 @@ final class Envelop
     /**
      * @template TTResult
      * @template TTMessage of Message<TTResult>
-     * @param TTMessage|Envelop<TTResult, TTMessage> $messageOrEnvelop
-     * @return Envelop<TTResult, TTMessage>
+     * @param TTMessage|Envelope<TTResult, TTMessage> $messageOrEnvelop
+     * @return Envelope<TTResult, TTMessage>
      */
     public static function wrap(Message|self $messageOrEnvelop, Stamp ...$stamps): self
     {
@@ -42,7 +42,7 @@ final class Envelop
             $envelop = $messageOrEnvelop;
         }
 
-        /** @var Envelop<TTResult, TTMessage> $envelop */
+        /** @var Envelope<TTResult, TTMessage> $envelop */
         return $envelop->withStamps(...$stamps);
     }
 

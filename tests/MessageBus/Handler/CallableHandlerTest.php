@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Kenny1911\SisyphBus\MessageBus\Handler;
 
 use Kenny1911\SisyphBus\Message\TestCommand;
-use Kenny1911\SisyphBus\MessageBus\Envelop;
+use Kenny1911\SisyphBus\MessageBus\Envelope;
 use Kenny1911\SisyphBus\MessageBus\HandlerRegistry\ArrayHandlerRegistry;
 use Kenny1911\SisyphBus\MessageBus\MessageBus;
 use Kenny1911\SisyphBus\MessageBus\MessageContext;
@@ -16,7 +16,7 @@ use PHPUnit\Framework\TestCase;
 #[CoversClass(className: CallableHandler::class)]
 #[UsesClass(className: MessageContext::class)]
 #[UsesClass(className: MessageBus::class)]
-#[UsesClass(className: Envelop::class)]
+#[UsesClass(className: Envelope::class)]
 #[UsesClass(className: ArrayHandlerRegistry::class)]
 final class CallableHandlerTest extends TestCase
 {

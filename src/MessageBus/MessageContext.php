@@ -16,9 +16,9 @@ final class MessageContext extends ReadonlyMessageContext
     private MessageBus $messageBus;
 
     /**
-     * @param Envelop<TResult, TMessage> $envelop
+     * @param Envelope<TResult, TMessage> $envelop
      */
-    protected function __construct(MessageBus $messageBus, Envelop $envelop, ?self $parent)
+    protected function __construct(MessageBus $messageBus, Envelope $envelop, ?self $parent)
     {
         parent::__construct($envelop, $parent);
 
@@ -28,17 +28,17 @@ final class MessageContext extends ReadonlyMessageContext
     /**
      * @template TTResult
      * @template TTMessage of Message<TTResult>
-     * @param TTMessage|Envelop<TTResult, TTMessage> $messageOrEnvelop
+     * @param TTMessage|Envelope<TTResult, TTMessage> $messageOrEnvelop
      * @return self<TTResult, TTMessage>
      */
-    public static function start(MessageBus $messageBus, Message|Envelop $messageOrEnvelop): self
+    public static function start(MessageBus $messageBus, Message|Envelope $messageOrEnvelop): self
     {
-        return new self($messageBus, Envelop::wrap($messageOrEnvelop), null);
+        return new self($messageBus, Envelope::wrap($messageOrEnvelop), null);
     }
 
-    public function dispatch(Message|Envelop $messageOrEnvelop): mixed
+    public function dispatch(Message|Envelope $messageOrEnvelop): mixed
     {
-        $child = new self($this->messageBus, Envelop::wrap($messageOrEnvelop), $this);
+        $child = new self($this->messageBus, Envelope::wrap($messageOrEnvelop), $this);
 
         foreach ($this->attributes as $attribute) {
             if ($attribute instanceof InheritanceContextAttribute) {

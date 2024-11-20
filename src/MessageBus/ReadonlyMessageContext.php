@@ -14,8 +14,8 @@ use Kenny1911\SisyphBus\MessageBus\MessageId\MessageId;
  */
 abstract class ReadonlyMessageContext
 {
-    /** @var Envelop<TResult, TMessage> */
-    public Envelop $envelop;
+    /** @var Envelope<TResult, TMessage> */
+    public Envelope $envelop;
 
     public readonly ?self $parent;
 
@@ -23,9 +23,9 @@ abstract class ReadonlyMessageContext
     protected array $attributes = [];
 
     /**
-     * @param Envelop<TResult, TMessage> $envelop
+     * @param Envelope<TResult, TMessage> $envelop
      */
-    protected function __construct(Envelop $envelop, ?self $parent)
+    protected function __construct(Envelope $envelop, ?self $parent)
     {
         $this->envelop = $envelop;
         $this->parent = $parent;

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Kenny1911\SisyphBus\Async;
 
-use Kenny1911\SisyphBus\MessageBus\Envelop;
+use Kenny1911\SisyphBus\MessageBus\Envelope;
 use Kenny1911\SisyphBus\MessageBus\HandlerRegistry;
 use Kenny1911\SisyphBus\MessageBus\MessageBus;
 use Kenny1911\SisyphBus\MessageBus\Middleware\Middleware;
@@ -38,7 +38,7 @@ final class Consumer
         $this->messageBus = $messageBus;
     }
 
-    public function handle(Envelop $envelop): void
+    public function handle(Envelope $envelop): void
     {
         $handler = $this->handlerRegistry->get($envelop->message::class);
         $messageContext = $this->messageBus->startContext($envelop);

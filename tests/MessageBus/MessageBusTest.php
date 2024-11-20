@@ -19,7 +19,7 @@ use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
 #[CoversClass(MessageBus::class)]
-#[UsesClass(Envelop::class)]
+#[UsesClass(Envelope::class)]
 #[UsesClass(ArrayHandlerRegistry::class)]
 #[UsesClass(BaseHandlerRegistry::class)]
 #[UsesClass(CallableHandler::class)]
