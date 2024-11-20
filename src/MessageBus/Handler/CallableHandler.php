@@ -18,12 +18,12 @@ final class CallableHandler implements Handler
     /** @var non-empty-string */
     private readonly string $id;
 
-    /** @var callable(MessageContext<TResult, TMessage>): TResult */
+    /** @var callable(TMessage=, MessageContext<TResult, TMessage>=): TResult */
     private mixed $callable;
 
     /**
      * @param non-empty-string $id
-     * @param callable(MessageContext<TResult, TMessage>): TResult $handler
+     * @param callable(TMessage=, MessageContext<TResult, TMessage>=): TResult $handler
      */
     public function __construct(string $id, callable $handler)
     {
@@ -38,6 +38,6 @@ final class CallableHandler implements Handler
 
     public function handle(MessageContext $messageContext): mixed
     {
-        return ($this->callable)($messageContext);
+        return ($this->callable)($messageContext->getMessage(), $messageContext);
     }
 }
