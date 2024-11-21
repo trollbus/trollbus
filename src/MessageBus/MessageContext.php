@@ -36,6 +36,12 @@ final class MessageContext extends ReadonlyMessageContext
         return new self($messageBus, Envelope::wrap($messageOrEnvelop), null);
     }
 
+    /**
+     * @template TTResult
+     * @template TTMessage of Message<TTResult>
+     * @param TTMessage|Envelope<TTResult, TTMessage> $messageOrEnvelop
+     * @return (TTResult is void ? null : TTResult)
+     */
     public function dispatch(Message|Envelope $messageOrEnvelop): mixed
     {
         $child = new self($this->messageBus, Envelope::wrap($messageOrEnvelop), $this);
