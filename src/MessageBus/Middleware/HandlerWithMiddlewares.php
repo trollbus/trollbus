@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Trollbus\MessageBus\Middleware;
 
 use Trollbus\Message\Message;
-use Trollbus\MessageBus\Envelope;
 use Trollbus\MessageBus\Handler;
 use Trollbus\MessageBus\MessageContext;
 

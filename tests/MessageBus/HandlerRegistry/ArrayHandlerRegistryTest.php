@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Trollbus\Tests\MessageBus\HandlerRegistry;
 
-use Trollbus\MessageBus\Handler\CallableHandler;
-use Trollbus\MessageBus\HandlerRegistry;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\UsesClass;
+use Trollbus\MessageBus\Handler\CallableHandler;
+use Trollbus\MessageBus\HandlerRegistry;
 use Trollbus\MessageBus\HandlerRegistry\ArrayHandlerRegistry;
 use Trollbus\Tests\MessageBus\HandlerRegistryTestCase;
 

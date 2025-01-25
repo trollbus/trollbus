@@ -6,7 +6,6 @@ namespace Trollbus\MessageBus;
 
 use Trollbus\Message\Message;
 use Trollbus\MessageBus\MessageId\Exception\MessageIdNotSet;
-use Trollbus\MessageBus\MessageId\MessageId;
 
 /**
  * @template-covariant TResult

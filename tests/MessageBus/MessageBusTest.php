@@ -4,23 +4,23 @@ declare(strict_types=1);
 
 namespace Trollbus\Tests\MessageBus;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\UsesClass;
+use PHPUnit\Framework\TestCase;
 use Trollbus\Message\Message;
 use Trollbus\MessageBus\Envelope;
-use Trollbus\MessageBus\MessageBus;
-use Trollbus\MessageBus\MessageContext;
-use Trollbus\MessageBus\ReadonlyMessageContext;
-use Trollbus\Tests\Message\TestCommand;
-use Trollbus\Tests\Message\TestEvent;
-use Trollbus\Tests\Message\TestQuery;
 use Trollbus\MessageBus\Handler\CallableHandler;
 use Trollbus\MessageBus\Handler\EventHandler;
 use Trollbus\MessageBus\HandlerRegistry\ArrayHandlerRegistry;
 use Trollbus\MessageBus\HandlerRegistry\BaseHandlerRegistry;
+use Trollbus\MessageBus\MessageBus;
+use Trollbus\MessageBus\MessageContext;
 use Trollbus\MessageBus\Middleware\CallableMiddleware;
 use Trollbus\MessageBus\Middleware\Pipeline;
-use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\UsesClass;
-use PHPUnit\Framework\TestCase;
+use Trollbus\MessageBus\ReadonlyMessageContext;
+use Trollbus\Tests\Message\TestCommand;
+use Trollbus\Tests\Message\TestEvent;
+use Trollbus\Tests\Message\TestQuery;
 
 #[CoversClass(MessageBus::class)]
 #[UsesClass(Envelope::class)]

@@ -4,13 +4,11 @@ declare(strict_types=1);
 
 namespace Trollbus\MessageBus\Logging;
 
-use Trollbus\Message\Message;
-use Trollbus\MessageBus\Envelope;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 use Trollbus\MessageBus\MessageContext;
 use Trollbus\MessageBus\Middleware\Middleware;
 use Trollbus\MessageBus\Middleware\Pipeline;
-use Psr\Log\LoggerInterface;
-use Psr\Log\NullLogger;
 
 final class LogMiddleware implements Middleware
 {

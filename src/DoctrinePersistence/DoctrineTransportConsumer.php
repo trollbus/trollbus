@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Trollbus\DoctrinePersistence;
 
 use Doctrine\DBAL\Exception;
+use Revolt\EventLoop;
 use Trollbus\Async\Consumer;
 use Trollbus\Async\TransportConsumer;
-use Revolt\EventLoop;
 
 final class DoctrineTransportConsumer implements TransportConsumer
 {

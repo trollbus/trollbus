@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Trollbus\MessageBus\CreatedAt;
 
+use Psr\Clock\ClockInterface;
 use Trollbus\MessageBus\MessageContext;
 use Trollbus\MessageBus\Middleware\Middleware;
 use Trollbus\MessageBus\Middleware\Pipeline;
-use Psr\Clock\ClockInterface;
 
 final class CreatedAtMiddleware implements Middleware
 {

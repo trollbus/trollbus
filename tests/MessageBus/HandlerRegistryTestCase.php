@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace Trollbus\Tests\MessageBus;
 
+use PHPUnit\Framework\TestCase;
 use Trollbus\Message\Message;
 use Trollbus\MessageBus\Handler;
+use Trollbus\MessageBus\Handler\CallableHandler;
 use Trollbus\MessageBus\HandlerRegistry;
+use Trollbus\MessageBus\HandlerRegistry\HandlerNotFound;
 use Trollbus\Tests\Message\TestCommand;
 use Trollbus\Tests\Message\TestEvent;
-use Trollbus\MessageBus\Handler\CallableHandler;
-use Trollbus\MessageBus\HandlerRegistry\HandlerNotFound;
-use PHPUnit\Framework\TestCase;
 
 abstract class HandlerRegistryTestCase extends TestCase
 {
