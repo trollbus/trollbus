@@ -18,7 +18,7 @@ final class TryPublishViaOutboxMiddleware implements Middleware
             return $pipeline->continue();
         }
 
-        $outbox->addEnvelope($messageContext->envelop);
+        $outbox->addEnvelope($messageContext->getEnvelop());
 
         return null;
     }

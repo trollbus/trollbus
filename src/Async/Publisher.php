@@ -35,7 +35,7 @@ final class Publisher implements Handler
 
     public function handle(MessageContext $messageContext): mixed
     {
-        $this->publisher->publish([$messageContext->envelop]);
+        $this->publisher->publish([$messageContext->getEnvelop()]);
 
         return null;
     }

@@ -13,10 +13,10 @@ use Trollbus\MessageBus\MessageId\MessageIdNotSet;
  */
 abstract class ReadonlyMessageContext
 {
-    /** @var Envelope<TResult, TMessage> */
-    public Envelope $envelop;
-
     public readonly ?self $parent;
+
+    /** @var Envelope<TResult, TMessage> */
+    protected Envelope $envelop;
 
     /** @var array<class-string<ContextAttribute>, ContextAttribute> */
     protected array $attributes = [];
@@ -28,6 +28,14 @@ abstract class ReadonlyMessageContext
     {
         $this->envelop = $envelop;
         $this->parent = $parent;
+    }
+
+    /**
+     * @return Envelope<TResult, TMessage>
+     */
+    public function getEnvelop(): Envelope
+    {
+        return $this->envelop;
     }
 
     /**
