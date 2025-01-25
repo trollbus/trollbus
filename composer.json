@@ -11,6 +11,16 @@
     "config": {
         "sort-packages": true
     },
+    "scripts": {
+        "cs-check": "./tools/php-cs-fixer/vendor/bin/php-cs-fixer check",
+        "cs-fix": "./tools/php-cs-fixer/vendor/bin/php-cs-fixer fix",
+        "psalm": "./tools/psalm/vendor/bin/psalm",
+        "check": [
+            "@cs-check",
+            "@psalm --no-cache",
+            "phpunit"
+        ]
+    },
     "autoload": {
         "psr-4": {
             "Trollbus\\": "src/"
