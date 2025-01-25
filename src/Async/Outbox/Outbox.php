@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Kenny1911\SisyphBus\Async\Outbox;
+namespace Trollbus\Async\Outbox;
 
-use Kenny1911\SisyphBus\MessageBus\Envelope;
-use Kenny1911\SisyphBus\MessageBus\InheritanceContextAttribute;
+use Trollbus\MessageBus\Envelope;
+use Trollbus\MessageBus\InheritanceContextAttribute;
 
 final class Outbox implements InheritanceContextAttribute
 {

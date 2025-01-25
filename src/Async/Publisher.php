@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Kenny1911\SisyphBus\Async;
+namespace Trollbus\Async;
 
-use Kenny1911\SisyphBus\Message\Message;
-use Kenny1911\SisyphBus\MessageBus\Handler;
-use Kenny1911\SisyphBus\MessageBus\MessageContext;
+use Trollbus\Message\Message;
+use Trollbus\MessageBus\Handler;
+use Trollbus\MessageBus\MessageContext;
 
 /**
  * @template TMessage of Message<void>

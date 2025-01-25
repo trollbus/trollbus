@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Kenny1911\SisyphBus\MessageBus\Logging;
+namespace Trollbus\MessageBus\Logging;
 
-use Kenny1911\SisyphBus\Message\Message;
-use Kenny1911\SisyphBus\MessageBus\Envelope;
-use Kenny1911\SisyphBus\MessageBus\MessageContext;
-use Kenny1911\SisyphBus\MessageBus\Middleware\Middleware;
-use Kenny1911\SisyphBus\MessageBus\Middleware\Pipeline;
+use Trollbus\Message\Message;
+use Trollbus\MessageBus\Envelope;
+use Trollbus\MessageBus\MessageContext;
+use Trollbus\MessageBus\Middleware\Middleware;
+use Trollbus\MessageBus\Middleware\Pipeline;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 

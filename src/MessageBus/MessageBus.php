@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Kenny1911\SisyphBus\MessageBus;
+namespace Trollbus\MessageBus;
 
-use Kenny1911\SisyphBus\Message\Message;
-use Kenny1911\SisyphBus\MessageBus\HandlerRegistry\ArrayHandlerRegistry;
-use Kenny1911\SisyphBus\MessageBus\Middleware\Middleware;
-use Kenny1911\SisyphBus\MessageBus\Middleware\Pipeline;
+use Trollbus\Message\Message;
+use Trollbus\MessageBus\HandlerRegistry\ArrayHandlerRegistry;
+use Trollbus\MessageBus\Middleware\Middleware;
+use Trollbus\MessageBus\Middleware\Pipeline;
 
 final class MessageBus
 {

@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Kenny1911\SisyphBus\Async\Delay;
+namespace Trollbus\Async\Delay;
 
-use Kenny1911\SisyphBus\MessageBus\Stamp;
+use Trollbus\MessageBus\Stamp;
 
 final class Delay implements Stamp
 {

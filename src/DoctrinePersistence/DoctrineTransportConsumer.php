@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Kenny1911\SisyphBus\DoctrinePersistence;
+namespace Trollbus\DoctrinePersistence;
 
 use Doctrine\DBAL\Exception;
-use Kenny1911\SisyphBus\Async\Consumer;
-use Kenny1911\SisyphBus\Async\TransportConsumer;
+use Trollbus\Async\Consumer;
+use Trollbus\Async\TransportConsumer;
 use Revolt\EventLoop;
 
 final class DoctrineTransportConsumer implements TransportConsumer

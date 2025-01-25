@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Kenny1911\SisyphBus\DoctrinePersistence;
+namespace Trollbus\DoctrinePersistence;
 
 final class RandomConsumeIdGenerator implements ConsumeIdGenerator
 {

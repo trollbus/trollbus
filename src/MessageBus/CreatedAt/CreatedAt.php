@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Kenny1911\SisyphBus\MessageBus\CreatedAt;
+namespace Trollbus\MessageBus\CreatedAt;
 
-use Kenny1911\SisyphBus\MessageBus\Stamp;
+use Trollbus\MessageBus\Stamp;
 
 final class CreatedAt implements Stamp
 {

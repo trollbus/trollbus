@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-namespace Kenny1911\SisyphBus\MessageBus\Transaction;
+namespace Trollbus\MessageBus\Transaction;
 
-use Kenny1911\SisyphBus\MessageBus\InheritanceContextAttribute;
+use Trollbus\MessageBus\InheritanceContextAttribute;
 
 final class InTransaction implements InheritanceContextAttribute {}

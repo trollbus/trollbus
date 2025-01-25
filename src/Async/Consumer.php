@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Kenny1911\SisyphBus\Async;
+namespace Trollbus\Async;
 
-use Kenny1911\SisyphBus\MessageBus\Envelope;
-use Kenny1911\SisyphBus\MessageBus\HandlerRegistry;
-use Kenny1911\SisyphBus\MessageBus\MessageBus;
-use Kenny1911\SisyphBus\MessageBus\Middleware\Middleware;
-use Kenny1911\SisyphBus\MessageBus\Middleware\Pipeline;
+use Trollbus\MessageBus\Envelope;
+use Trollbus\MessageBus\HandlerRegistry;
+use Trollbus\MessageBus\MessageBus;
+use Trollbus\MessageBus\Middleware\Middleware;
+use Trollbus\MessageBus\Middleware\Pipeline;
 
 final class Consumer
 {

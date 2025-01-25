@@ -2,7 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Kenny1911\SisyphBus\Message;
+namespace Trollbus\Tests\Message;
+
+use Trollbus\Message\Message;
 
 /**
  * @implements Message<bool>

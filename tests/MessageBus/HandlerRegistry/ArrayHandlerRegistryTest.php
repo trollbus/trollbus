@@ -2,13 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Kenny1911\SisyphBus\MessageBus\HandlerRegistry;
+namespace Trollbus\Tests\MessageBus\HandlerRegistry;
 
-use Kenny1911\SisyphBus\MessageBus\Handler\CallableHandler;
-use Kenny1911\SisyphBus\MessageBus\HandlerRegistry;
-use Kenny1911\SisyphBus\MessageBus\HandlerRegistryTestCase;
+use Trollbus\MessageBus\Handler\CallableHandler;
+use Trollbus\MessageBus\HandlerRegistry;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\UsesClass;
+use Trollbus\MessageBus\HandlerRegistry\ArrayHandlerRegistry;
+use Trollbus\Tests\MessageBus\HandlerRegistryTestCase;
 
 #[CoversClass(className: ArrayHandlerRegistry::class)]
 #[UsesClass(className: CallableHandler::class)]

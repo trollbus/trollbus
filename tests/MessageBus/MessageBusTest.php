@@ -2,18 +2,22 @@
 
 declare(strict_types=1);
 
-namespace Kenny1911\SisyphBus\MessageBus;
+namespace Trollbus\Tests\MessageBus;
 
-use Kenny1911\SisyphBus\Message\Message;
-use Kenny1911\SisyphBus\Message\TestCommand;
-use Kenny1911\SisyphBus\Message\TestEvent;
-use Kenny1911\SisyphBus\Message\TestQuery;
-use Kenny1911\SisyphBus\MessageBus\Handler\CallableHandler;
-use Kenny1911\SisyphBus\MessageBus\Handler\EventHandler;
-use Kenny1911\SisyphBus\MessageBus\HandlerRegistry\ArrayHandlerRegistry;
-use Kenny1911\SisyphBus\MessageBus\HandlerRegistry\BaseHandlerRegistry;
-use Kenny1911\SisyphBus\MessageBus\Middleware\CallableMiddleware;
-use Kenny1911\SisyphBus\MessageBus\Middleware\Pipeline;
+use Trollbus\Message\Message;
+use Trollbus\MessageBus\Envelope;
+use Trollbus\MessageBus\MessageBus;
+use Trollbus\MessageBus\MessageContext;
+use Trollbus\MessageBus\ReadonlyMessageContext;
+use Trollbus\Tests\Message\TestCommand;
+use Trollbus\Tests\Message\TestEvent;
+use Trollbus\Tests\Message\TestQuery;
+use Trollbus\MessageBus\Handler\CallableHandler;
+use Trollbus\MessageBus\Handler\EventHandler;
+use Trollbus\MessageBus\HandlerRegistry\ArrayHandlerRegistry;
+use Trollbus\MessageBus\HandlerRegistry\BaseHandlerRegistry;
+use Trollbus\MessageBus\Middleware\CallableMiddleware;
+use Trollbus\MessageBus\Middleware\Pipeline;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;

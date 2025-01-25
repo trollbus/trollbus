@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Kenny1911\SisyphBus\MessageBus\Middleware;
+namespace Trollbus\MessageBus\Middleware;
 
-use Kenny1911\SisyphBus\Message\Message;
-use Kenny1911\SisyphBus\MessageBus\Envelope;
-use Kenny1911\SisyphBus\MessageBus\MessageContext;
+use Trollbus\Message\Message;
+use Trollbus\MessageBus\Envelope;
+use Trollbus\MessageBus\MessageContext;
 
 interface Middleware
 {

@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Kenny1911\SisyphBus\DoctrinePersistence;
+namespace Trollbus\DoctrinePersistence;
 
-use Kenny1911\SisyphBus\Async\TransportSetup;
+use Trollbus\Async\TransportSetup;
 
 final class DoctrineTransportSetup implements TransportSetup
 {

@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Kenny1911\SisyphBus\MessageBus\HandlerRegistry;
+namespace Trollbus\MessageBus\HandlerRegistry;
 
-use Kenny1911\SisyphBus\Message\Message;
-use Kenny1911\SisyphBus\MessageBus\Handler;
-use Kenny1911\SisyphBus\MessageBus\ReadonlyHandler;
+use Trollbus\Message\Message;
+use Trollbus\MessageBus\Handler;
+use Trollbus\MessageBus\ReadonlyHandler;
 
 final class ArrayHandlerRegistry extends BaseHandlerRegistry
 {

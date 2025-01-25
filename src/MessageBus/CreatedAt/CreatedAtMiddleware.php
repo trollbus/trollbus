@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Kenny1911\SisyphBus\MessageBus\CreatedAt;
+namespace Trollbus\MessageBus\CreatedAt;
 
-use Kenny1911\SisyphBus\MessageBus\MessageContext;
-use Kenny1911\SisyphBus\MessageBus\Middleware\Middleware;
-use Kenny1911\SisyphBus\MessageBus\Middleware\Pipeline;
+use Trollbus\MessageBus\MessageContext;
+use Trollbus\MessageBus\Middleware\Middleware;
+use Trollbus\MessageBus\Middleware\Pipeline;
 use Psr\Clock\ClockInterface;
 
 final class CreatedAtMiddleware implements Middleware

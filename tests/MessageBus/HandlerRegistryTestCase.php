@@ -2,13 +2,15 @@
 
 declare(strict_types=1);
 
-namespace Kenny1911\SisyphBus\MessageBus;
+namespace Trollbus\Tests\MessageBus;
 
-use Kenny1911\SisyphBus\Message\Message;
-use Kenny1911\SisyphBus\Message\TestCommand;
-use Kenny1911\SisyphBus\Message\TestEvent;
-use Kenny1911\SisyphBus\MessageBus\Handler\CallableHandler;
-use Kenny1911\SisyphBus\MessageBus\HandlerRegistry\HandlerNotFound;
+use Trollbus\Message\Message;
+use Trollbus\MessageBus\Handler;
+use Trollbus\MessageBus\HandlerRegistry;
+use Trollbus\Tests\Message\TestCommand;
+use Trollbus\Tests\Message\TestEvent;
+use Trollbus\MessageBus\Handler\CallableHandler;
+use Trollbus\MessageBus\HandlerRegistry\HandlerNotFound;
 use PHPUnit\Framework\TestCase;
 
 abstract class HandlerRegistryTestCase extends TestCase

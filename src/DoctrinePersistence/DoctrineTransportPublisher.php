@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Kenny1911\SisyphBus\DoctrinePersistence;
+namespace Trollbus\DoctrinePersistence;
 
 use Doctrine\DBAL\Exception;
-use Kenny1911\SisyphBus\Async\TransportPublisher;
-use Kenny1911\SisyphBus\MessageBus\MessageId\Exception\MessageIdNotSet;
+use Trollbus\Async\TransportPublisher;
+use Trollbus\MessageBus\MessageId\Exception\MessageIdNotSet;
 
 final class DoctrineTransportPublisher implements TransportPublisher
 {

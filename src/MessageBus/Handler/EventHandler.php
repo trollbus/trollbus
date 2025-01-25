@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Kenny1911\SisyphBus\MessageBus\Handler;
+namespace Trollbus\MessageBus\Handler;
 
-use Kenny1911\SisyphBus\Message\Event;
-use Kenny1911\SisyphBus\MessageBus\Handler;
-use Kenny1911\SisyphBus\MessageBus\MessageContext;
+use Trollbus\Message\Event;
+use Trollbus\MessageBus\Handler;
+use Trollbus\MessageBus\MessageContext;
 
 /**
  * @template TMessage of Event

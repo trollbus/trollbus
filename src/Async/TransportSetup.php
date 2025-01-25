@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Kenny1911\SisyphBus\Async;
+namespace Trollbus\Async;
 
 interface TransportSetup
 {

@@ -2,17 +2,17 @@
 
 declare(strict_types=1);
 
-namespace Kenny1911\SisyphBus\DoctrinePersistence;
+namespace Trollbus\DoctrinePersistence;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Types\Types;
-use Kenny1911\SisyphBus\Async\Delay\Delay;
-use Kenny1911\SisyphBus\Async\Exchange;
-use Kenny1911\SisyphBus\Message\Message;
-use Kenny1911\SisyphBus\MessageBus\Envelope;
-use Kenny1911\SisyphBus\MessageBus\MessageId\Exception\MessageIdNotSet;
+use Trollbus\Async\Delay\Delay;
+use Trollbus\Async\Exchange;
+use Trollbus\Message\Message;
+use Trollbus\MessageBus\Envelope;
+use Trollbus\MessageBus\MessageId\Exception\MessageIdNotSet;
 use Psr\Clock\ClockInterface;
 
 final class DoctrineTransport

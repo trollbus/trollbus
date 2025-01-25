@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Kenny1911\SisyphBus\Async;
+namespace Trollbus\Async;
 
-use Kenny1911\SisyphBus\MessageBus\ContextAttribute;
+use Trollbus\MessageBus\ContextAttribute;
 
 final class Queue implements ContextAttribute
 {

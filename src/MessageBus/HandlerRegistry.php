@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Kenny1911\SisyphBus\MessageBus;
+namespace Trollbus\MessageBus;
 
-use Kenny1911\SisyphBus\Message\Message;
-use Kenny1911\SisyphBus\MessageBus\HandlerRegistry\HandlerNotFound;
+use Trollbus\Message\Message;
+use Trollbus\MessageBus\HandlerRegistry\HandlerNotFound;
 
 interface HandlerRegistry
 {

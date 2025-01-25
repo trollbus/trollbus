@@ -2,6 +2,6 @@
 
 declare(strict_types=1);
 
-namespace Kenny1911\SisyphBus\MessageBus;
+namespace Trollbus\MessageBus;
 
 interface ContextAttribute {}

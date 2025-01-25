@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Kenny1911\SisyphBus\MessageBus\MessageId;
+namespace Trollbus\MessageBus\MessageId;
 
 interface MessageIdGenerator
 {

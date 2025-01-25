@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Kenny1911\SisyphBus\Message;
+namespace Trollbus\Message;
 
 /**
  * @extends Message<void>
