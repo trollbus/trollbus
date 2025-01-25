@@ -7,7 +7,7 @@ namespace Trollbus\Async\Outbox;
 use Trollbus\Async\Queue;
 use Trollbus\Async\TransportPublisher;
 use Trollbus\MessageBus\MessageContext;
-use Trollbus\MessageBus\MessageId\Exception\MessageIdNotSet;
+use Trollbus\MessageBus\MessageId\MessageIdNotSet;
 use Trollbus\MessageBus\Middleware\Middleware;
 use Trollbus\MessageBus\Middleware\Pipeline;
 use Trollbus\MessageBus\Transaction\TransactionProvider;

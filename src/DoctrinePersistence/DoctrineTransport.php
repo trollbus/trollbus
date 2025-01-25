@@ -13,7 +13,7 @@ use Trollbus\Async\Delay\Delay;
 use Trollbus\Async\Exchange;
 use Trollbus\Message\Message;
 use Trollbus\MessageBus\Envelope;
-use Trollbus\MessageBus\MessageId\Exception\MessageIdNotSet;
+use Trollbus\MessageBus\MessageId\MessageIdNotSet;
 
 final class DoctrineTransport
 {

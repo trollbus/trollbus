@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Trollbus\MessageBus;
 
 use Trollbus\Message\Message;
-use Trollbus\MessageBus\MessageId\Exception\MessageIdNotSet;
 use Trollbus\MessageBus\MessageId\MessageId;
+use Trollbus\MessageBus\MessageId\MessageIdNotSet;
 
 /**
  * @template-covariant TResult

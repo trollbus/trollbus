@@ -6,7 +6,7 @@ namespace Trollbus\DoctrinePersistence;
 
 use Doctrine\DBAL\Exception;
 use Trollbus\Async\TransportPublisher;
-use Trollbus\MessageBus\MessageId\Exception\MessageIdNotSet;
+use Trollbus\MessageBus\MessageId\MessageIdNotSet;
 
 final class DoctrineTransportPublisher implements TransportPublisher
 {

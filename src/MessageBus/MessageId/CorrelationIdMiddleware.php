@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Trollbus\MessageBus\MessageId;
 
 use Trollbus\MessageBus\MessageContext;
-use Trollbus\MessageBus\MessageId\Exception\MessageIdNotSet;
 use Trollbus\MessageBus\Middleware\Middleware;
 use Trollbus\MessageBus\Middleware\Pipeline;
 
