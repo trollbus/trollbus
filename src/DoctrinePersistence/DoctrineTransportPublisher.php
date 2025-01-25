@@ -10,12 +10,9 @@ use Trollbus\MessageBus\MessageId\MessageIdNotSet;
 
 final class DoctrineTransportPublisher implements TransportPublisher
 {
-    private readonly DoctrineTransport $transport;
-
-    public function __construct(DoctrineTransport $transport)
-    {
-        $this->transport = $transport;
-    }
+    public function __construct(
+        private readonly DoctrineTransport $transport,
+    ) {}
 
     /**
      * @throws MessageIdNotSet

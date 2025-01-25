@@ -12,12 +12,9 @@ use Trollbus\MessageBus\Middleware\Pipeline;
 
 final class LogMiddleware implements Middleware
 {
-    private readonly LoggerInterface $logger;
-
-    public function __construct(LoggerInterface $logger = new NullLogger())
-    {
-        $this->logger = $logger;
-    }
+    public function __construct(
+        private readonly LoggerInterface $logger = new NullLogger(),
+    ) {}
 
     /**
      * @throws \Throwable

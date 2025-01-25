@@ -13,16 +13,12 @@ use Trollbus\MessageBus\MessageContext;
  */
 final class CallableMiddleware implements Middleware
 {
-    /** @var callable(MessageContext<TResult, TMessage>, Pipeline<TResult, TMessage>): TResult */
-    private mixed $callable;
-
     /**
      * @param callable(MessageContext<TResult, TMessage>, Pipeline<TResult, TMessage>): TResult $callable
      */
-    public function __construct(callable $callable)
-    {
-        $this->callable = $callable;
-    }
+    public function __construct(
+        private mixed $callable,
+    ) {}
 
     /**
      * @param MessageContext<TResult, TMessage> $messageContext

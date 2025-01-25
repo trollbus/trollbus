@@ -10,12 +10,9 @@ use Trollbus\MessageBus\Middleware\Pipeline;
 
 final class MessageIdMiddleware implements Middleware
 {
-    private readonly MessageIdGenerator $generator;
-
-    public function __construct(MessageIdGenerator $generator)
-    {
-        $this->generator = $generator;
-    }
+    public function __construct(
+        private readonly MessageIdGenerator $generator,
+    ) {}
 
     public function handle(MessageContext $messageContext, Pipeline $pipeline): mixed
     {

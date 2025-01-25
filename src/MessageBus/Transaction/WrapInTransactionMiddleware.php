@@ -10,12 +10,9 @@ use Trollbus\MessageBus\Middleware\Pipeline;
 
 final class WrapInTransactionMiddleware implements Middleware
 {
-    private readonly TransactionProvider $transactionProvider;
-
-    public function __construct(TransactionProvider $transactionProvider)
-    {
-        $this->transactionProvider = $transactionProvider;
-    }
+    public function __construct(
+        private readonly TransactionProvider $transactionProvider,
+    ) {}
 
     public function handle(MessageContext $messageContext, Pipeline $pipeline): mixed
     {

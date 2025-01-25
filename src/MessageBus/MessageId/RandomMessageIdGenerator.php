@@ -6,16 +6,12 @@ namespace Trollbus\MessageBus\MessageId;
 
 final class RandomMessageIdGenerator implements MessageIdGenerator
 {
-    /** @var positive-int */
-    private readonly int $bytes;
-
     /**
      * @param positive-int $bytes
      */
-    public function __construct(int $bytes = 16)
-    {
-        $this->bytes = $bytes;
-    }
+    public function __construct(
+        private readonly int $bytes = 16,
+    ) {}
 
     public function generate(): string
     {

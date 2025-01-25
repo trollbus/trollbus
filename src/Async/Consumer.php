@@ -12,31 +12,16 @@ use Trollbus\MessageBus\Middleware\Pipeline;
 
 final class Consumer
 {
-    /** @var non-empty-string */
-    public readonly string $queue;
-
-    private readonly HandlerRegistry $handlerRegistry;
-
-    /** @var iterable<Middleware> */
-    private readonly iterable $middlewares;
-
-    private readonly MessageBus $messageBus;
-
     /**
      * @param non-empty-string $queue
      * @param iterable<Middleware> $middlewares
      */
     public function __construct(
-        string $queue,
-        HandlerRegistry $handlerRegistry,
-        iterable $middlewares,
-        MessageBus $messageBus,
-    ) {
-        $this->queue = $queue;
-        $this->handlerRegistry = $handlerRegistry;
-        $this->middlewares = $middlewares;
-        $this->messageBus = $messageBus;
-    }
+        public readonly string $queue,
+        private readonly HandlerRegistry $handlerRegistry,
+        private readonly iterable $middlewares,
+        private readonly MessageBus $messageBus,
+    ) {}
 
     public function handle(Envelope $envelop): void
     {

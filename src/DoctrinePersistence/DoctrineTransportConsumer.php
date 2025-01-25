@@ -11,18 +11,13 @@ use Trollbus\Async\TransportConsumer;
 
 final class DoctrineTransportConsumer implements TransportConsumer
 {
-    private readonly DoctrineTransport $transport;
-
-    private readonly float $interval;
-
     /** @var non-empty-string|null */
     private ?string $currentMessageId = null;
 
-    public function __construct(DoctrineTransport $transport, float $interval)
-    {
-        $this->transport = $transport;
-        $this->interval = $interval;
-    }
+    public function __construct(
+        private readonly DoctrineTransport $transport,
+        private readonly float $interval,
+    ) {}
 
     public function runConsume(Consumer $consumer): \Closure
     {

@@ -15,21 +15,14 @@ use Trollbus\MessageBus\MessageContext;
  */
 final class HandlerWithMiddlewares implements Handler
 {
-    /** @var Handler<TResult, TMessage> */
-    private readonly Handler $inner;
-
-    /** @var iterable<Middleware> */
-    private iterable $middlewares;
-
     /**
      * @param Handler<TResult, TMessage> $inner
      * @param iterable<Middleware> $middlewares
      */
-    public function __construct(Handler $inner, iterable $middlewares)
-    {
-        $this->inner = $inner;
-        $this->middlewares = $middlewares;
-    }
+    public function __construct(
+        private readonly Handler $inner,
+        private readonly iterable $middlewares,
+    ) {}
 
     public function id(): string
     {

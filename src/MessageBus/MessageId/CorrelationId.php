@@ -8,14 +8,10 @@ use Trollbus\MessageBus\Stamp;
 
 final class CorrelationId implements Stamp
 {
-    /** @var non-empty-string */
-    public readonly string $correlationId;
-
     /**
      * @param non-empty-string $correlationId
      */
-    public function __construct(string $correlationId)
-    {
-        $this->correlationId = $correlationId;
-    }
+    public function __construct(
+        public readonly string $correlationId,
+    ) {}
 }

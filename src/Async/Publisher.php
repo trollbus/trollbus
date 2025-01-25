@@ -14,19 +14,13 @@ use Trollbus\MessageBus\MessageContext;
  */
 final class Publisher implements Handler
 {
-    /** @var non-empty-string */
-    private readonly string $id;
-
-    private readonly TransportPublisher $publisher;
-
     /**
      * @param non-empty-string $id
      */
-    public function __construct(string $id, TransportPublisher $publisher)
-    {
-        $this->id = $id;
-        $this->publisher = $publisher;
-    }
+    public function __construct(
+        private readonly string $id,
+        private readonly TransportPublisher $publisher,
+    ) {}
 
     public function id(): string
     {

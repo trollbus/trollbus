@@ -13,16 +13,12 @@ final class Delay implements Stamp
     private const HOURS_MULTIPLIER = self::MINUTES_MULTIPLIER * 60;
     private const DAYS_MULTIPLIER = self::HOURS_MULTIPLIER * 24;
 
-    /** @var positive-int */
-    public readonly int $milliseconds;
-
     /**
      * @param positive-int $milliseconds
      */
-    public function __construct(int $milliseconds)
-    {
-        $this->milliseconds = $milliseconds;
-    }
+    public function __construct(
+        public readonly int $milliseconds,
+    ) {}
 
     public static function till(\DateTimeImmutable $time, \DateTimeImmutable $now = new \DateTimeImmutable()): self
     {

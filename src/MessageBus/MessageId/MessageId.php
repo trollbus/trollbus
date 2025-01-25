@@ -8,14 +8,10 @@ use Trollbus\MessageBus\Stamp;
 
 final class MessageId implements Stamp
 {
-    /** @var non-empty-string */
-    public readonly string $messageId;
-
     /**
      * @param non-empty-string $messageId
      */
-    public function __construct(string $messageId)
-    {
-        $this->messageId = $messageId;
-    }
+    public function __construct(
+        public readonly string $messageId,
+    ) {}
 }

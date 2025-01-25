@@ -8,10 +8,7 @@ use Trollbus\MessageBus\Stamp;
 
 final class CreatedAt implements Stamp
 {
-    public readonly \DateTimeImmutable $createdAt;
-
-    public function __construct(\DateTimeImmutable $createdAt)
-    {
-        $this->createdAt = $createdAt;
-    }
+    public function __construct(
+        public readonly \DateTimeImmutable $createdAt,
+    ) {}
 }

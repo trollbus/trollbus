@@ -17,35 +17,17 @@ use Trollbus\MessageBus\MessageId\MessageIdNotSet;
 
 final class DoctrineTransport
 {
-    private readonly Connection $connection;
-
-    private readonly ConsumeIdGenerator $consumeIdGenerator;
-
-    /** @var array<class-string<Message>, list<non-empty-string>> */
-    private readonly array $messageClassesToQueues;
-
-    private readonly ?ClockInterface $clock;
-
-    /** @var non-empty-string */
-    private readonly string $tableName;
-
     /**
      * @param non-empty-string $tableName
      * @param array<class-string<Message>, list<non-empty-string>> $messageClassesToQueues
      */
     public function __construct(
-        Connection $connection,
-        ConsumeIdGenerator $consumeIdGenerator,
-        array $messageClassesToQueues,
-        ?ClockInterface $clock = null,
-        string $tableName = 'messages',
-    ) {
-        $this->connection = $connection;
-        $this->consumeIdGenerator = $consumeIdGenerator;
-        $this->messageClassesToQueues = $messageClassesToQueues;
-        $this->clock = $clock;
-        $this->tableName = $tableName;
-    }
+        private readonly Connection $connection,
+        private readonly ConsumeIdGenerator $consumeIdGenerator,
+        private readonly array $messageClassesToQueues,
+        private readonly ?ClockInterface $clock = null,
+        private readonly string $tableName = 'messages',
+    ) {}
 
     public function configureSchema(Schema $schema): void
     {

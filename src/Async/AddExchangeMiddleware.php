@@ -10,12 +10,9 @@ use Trollbus\MessageBus\Middleware\Pipeline;
 
 final class AddExchangeMiddleware implements Middleware
 {
-    private readonly ExchangeResolver $exchangeResolver;
-
-    public function __construct(ExchangeResolver $exchangeResolver)
-    {
-        $this->exchangeResolver = $exchangeResolver;
-    }
+    public function __construct(
+        private readonly ExchangeResolver $exchangeResolver,
+    ) {}
 
     public function handle(MessageContext $messageContext, Pipeline $pipeline): mixed
     {

@@ -13,16 +13,15 @@ use Trollbus\Message\Message;
  */
 final class MessageContext extends ReadonlyMessageContext
 {
-    private MessageBus $messageBus;
-
     /**
      * @param Envelope<TResult, TMessage> $envelop
      */
-    protected function __construct(MessageBus $messageBus, Envelope $envelop, ?self $parent)
-    {
+    protected function __construct(
+        private readonly MessageBus $messageBus,
+        Envelope $envelop,
+        ?self $parent,
+    ) {
         parent::__construct($envelop, $parent);
-
-        $this->messageBus = $messageBus;
     }
 
     /**

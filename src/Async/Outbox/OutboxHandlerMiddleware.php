@@ -12,21 +12,11 @@ use Trollbus\MessageBus\Transaction\TransactionProvider;
 
 final class OutboxHandlerMiddleware implements Middleware
 {
-    private readonly OutboxStorage $outboxStorage;
-
-    private readonly TransactionProvider $transactionProvider;
-
-    private readonly TransportPublisher $transportPublisher;
-
     public function __construct(
-        OutboxStorage $outboxStorage,
-        TransactionProvider $transactionProvider,
-        TransportPublisher $transportPublisher,
-    ) {
-        $this->transactionProvider = $transactionProvider;
-        $this->outboxStorage = $outboxStorage;
-        $this->transportPublisher = $transportPublisher;
-    }
+        private readonly OutboxStorage $outboxStorage,
+        private readonly TransactionProvider $transactionProvider,
+        private readonly TransportPublisher $transportPublisher,
+    ) {}
 
     public function handle(MessageContext $messageContext, Pipeline $pipeline): mixed
     {

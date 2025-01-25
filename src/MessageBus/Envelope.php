@@ -14,21 +14,14 @@ use Trollbus\MessageBus\MessageId\MessageIdNotSet;
  */
 final class Envelope
 {
-    /** @var TMessage */
-    public readonly Message $message;
-
-    /** @var array<class-string<Stamp>, Stamp> */
-    public readonly array $stamps;
-
     /**
      * @param TMessage $message
      * @param array<class-string<Stamp>, Stamp> $stamps
      */
-    private function __construct(Message $message, array $stamps = [])
-    {
-        $this->message = $message;
-        $this->stamps = $stamps;
-    }
+    private function __construct(
+        public readonly Message $message,
+        public readonly array $stamps = [],
+    ) {}
 
     /**
      * @template TTResult

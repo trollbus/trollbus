@@ -8,14 +8,10 @@ use Trollbus\MessageBus\Stamp;
 
 final class Exchange implements Stamp
 {
-    /** @var non-empty-string */
-    public readonly string $exchange;
-
     /**
      * @param non-empty-string $exchange
      */
-    public function __construct(string $exchange)
-    {
-        $this->exchange = $exchange;
-    }
+    public function __construct(
+        public readonly string $exchange,
+    ) {}
 }

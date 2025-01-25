@@ -11,12 +11,9 @@ use Trollbus\MessageBus\Middleware\Pipeline;
 
 final class CreatedAtMiddleware implements Middleware
 {
-    private readonly ?ClockInterface $clock;
-
-    public function __construct(?ClockInterface $clock = null)
-    {
-        $this->clock = $clock;
-    }
+    public function __construct(
+        private readonly ?ClockInterface $clock = null,
+    ) {}
 
     public function handle(MessageContext $messageContext, Pipeline $pipeline): mixed
     {

@@ -15,21 +15,14 @@ use Trollbus\MessageBus\MessageContext;
  */
 final class CallableHandler implements Handler
 {
-    /** @var non-empty-string */
-    private readonly string $id;
-
-    /** @var callable(TMessage=, MessageContext<TResult, TMessage>=): TResult */
-    private mixed $callable;
-
     /**
      * @param non-empty-string $id
      * @param callable(TMessage=, MessageContext<TResult, TMessage>=): TResult $handler
      */
-    public function __construct(string $id, callable $handler)
-    {
-        $this->id = $id;
-        $this->callable = $handler;
-    }
+    public function __construct(
+        private readonly string $id,
+        private readonly mixed $handler,
+    ) {}
 
     public function id(): string
     {
@@ -38,6 +31,6 @@ final class CallableHandler implements Handler
 
     public function handle(MessageContext $messageContext): mixed
     {
-        return ($this->callable)($messageContext->getMessage(), $messageContext);
+        return ($this->handler)($messageContext->getMessage(), $messageContext);
     }
 }

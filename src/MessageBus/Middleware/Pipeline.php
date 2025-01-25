@@ -14,15 +14,6 @@ use Trollbus\MessageBus\MessageContext;
  */
 final class Pipeline
 {
-    /** @var MessageContext<TResult, TMessage> */
-    private readonly MessageContext $messageContext;
-
-    /** @var Handler<TResult, TMessage> */
-    private readonly Handler $handler;
-
-    /** @var \Iterator<Middleware> */
-    private readonly \Iterator $middlewares;
-
     private bool $handled = false;
 
     private bool $started = false;
@@ -32,12 +23,11 @@ final class Pipeline
      * @param Handler<TResult, TMessage> $handler
      * @param \Iterator<Middleware> $middlewares
      */
-    private function __construct(MessageContext $messageContext, Handler $handler, \Iterator $middlewares)
-    {
-        $this->messageContext = $messageContext;
-        $this->handler = $handler;
-        $this->middlewares = $middlewares;
-    }
+    private function __construct(
+        private readonly MessageContext $messageContext,
+        private readonly Handler $handler,
+        private readonly \Iterator $middlewares,
+    ) {}
 
     /**
      * @template TTResult

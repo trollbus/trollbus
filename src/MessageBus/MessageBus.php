@@ -11,19 +11,13 @@ use Trollbus\MessageBus\Middleware\Pipeline;
 
 final class MessageBus
 {
-    private readonly HandlerRegistry $handlerRegistry;
-
-    /** @var iterable<Middleware> */
-    private readonly iterable $middlewares;
-
     /**
      * @param iterable<Middleware> $middlewares
      */
-    public function __construct(HandlerRegistry $handlerRegistry = new ArrayHandlerRegistry(), iterable $middlewares = [])
-    {
-        $this->handlerRegistry = $handlerRegistry;
-        $this->middlewares = $middlewares;
-    }
+    public function __construct(
+        private readonly HandlerRegistry $handlerRegistry = new ArrayHandlerRegistry(),
+        private readonly iterable $middlewares = [],
+    ) {}
 
     /**
      * @template TResult
