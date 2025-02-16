@@ -12,8 +12,11 @@ interface HandlerRegistry
     /**
      * @template TResult
      * @template TMessage of Message<TResult>
+     *
      * @param class-string<TMessage> $messageClass
+     *
      * @return Handler<TResult, TMessage>
+     *
      * @throws HandlerNotFound
      */
     public function get(string $messageClass): Handler;

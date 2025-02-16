@@ -6,31 +6,34 @@ namespace Trollbus\MessageBus\HandlerRegistry;
 
 use Trollbus\Message\Message;
 use Trollbus\MessageBus\Handler;
-use Trollbus\MessageBus\ReadonlyHandler;
 
 final class ArrayHandlerRegistry extends BaseHandlerRegistry
 {
     /**
      * Class string map of message class to message handler.
-     *
-     * @var array<class-string<Message>, Handler>
      */
     private readonly array $messageClassToHandler;
 
     /**
-     * @template TResult
-     * @template TMessage of Message<TResult>
-     * @param array<class-string<TMessage>, ReadonlyHandler<TResult, TMessage>> $messageClassToHandler
+     * @param array $messageClassToHandler
+     *   Map of message handlers, where key if class name of Message<TResult> and value is message Handler<TResult, Message<TResult>> instance
      */
     public function __construct(array $messageClassToHandler = [])
     {
-        /** @var array<class-string<Message>, Handler> $messageClassToHandler */
         $this->messageClassToHandler = $messageClassToHandler;
     }
 
+    /**
+     * @template TResult
+     * @template TMessage of Message<TResult>
+     *
+     * @param class-string<TMessage> $messageClass
+     *
+     * @return Handler<TResult, TMessage>|null
+     */
     protected function find(string $messageClass): ?Handler
     {
-        /** @psalm-suppress InvalidReturnStatement */
+        /** @var Handler<TResult, TMessage>|null */
         return $this->messageClassToHandler[$messageClass] ?? null;
     }
 }

@@ -10,14 +10,16 @@ use Trollbus\MessageBus\MessageContext;
 
 /**
  * @template TMessage of Event
- * @implements Handler<void, TMessage>
+ * @implements Handler<null, TMessage>
  */
 final class EventHandler implements Handler
 {
     /**
-     * @param iterable<Handler<void, TMessage>> $handlers
+     * @param iterable<Handler<null, TMessage>> $handlers
      */
-    public function __construct(private readonly iterable $handlers) {}
+    public function __construct(
+        private readonly iterable $handlers,
+    ) {}
 
     /**
      * @throws \JsonException

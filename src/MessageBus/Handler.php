@@ -9,9 +9,8 @@ use Trollbus\Message\Message;
 /**
  * @template TResult
  * @template TMessage of Message<TResult>
- * @extends ReadonlyHandler<TResult, TMessage>
  */
-interface Handler extends ReadonlyHandler
+interface Handler
 {
     /**
      * @return non-empty-string
@@ -20,7 +19,8 @@ interface Handler extends ReadonlyHandler
 
     /**
      * @param MessageContext<TResult, TMessage> $messageContext
-     * @return (TResult is void ? null : TResult)
+     *
+     * @return TResult
      */
     public function handle(MessageContext $messageContext): mixed;
 }

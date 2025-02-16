@@ -35,7 +35,7 @@ final class Pipeline
      * @param MessageContext<TTResult, TTMessage> $messageContext
      * @param Handler<TTResult, TTMessage> $handler
      * @param iterable<Middleware> $middlewares
-     * @return (TTResult is void ? null : TTResult)
+     * @return TTResult
      */
     public static function handle(MessageContext $messageContext, Handler $handler, iterable $middlewares): mixed
     {
@@ -53,7 +53,7 @@ final class Pipeline
     }
 
     /**
-     * @return (TResult is void ? null : TResult)
+     * @return TResult
      */
     public function continue(): mixed
     {

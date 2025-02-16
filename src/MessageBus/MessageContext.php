@@ -39,7 +39,7 @@ final class MessageContext extends ReadonlyMessageContext
      * @template TTResult
      * @template TTMessage of Message<TTResult>
      * @param TTMessage|Envelope<TTResult, TTMessage> $messageOrEnvelop
-     * @return (TTResult is void ? null : TTResult)
+     * @return TTResult
      */
     public function dispatch(Message|Envelope $messageOrEnvelop): mixed
     {

@@ -17,8 +17,11 @@ abstract class BaseHandlerRegistry implements HandlerRegistry
     /**
      * @template TResult
      * @template TMessage of Message<TResult>
+     *
      * @param class-string<TMessage> $messageClass
+     *
      * @return Handler<TResult, TMessage>
+     *
      * @throws HandlerNotFound
      */
     final public function get(string $messageClass): Handler
@@ -40,7 +43,9 @@ abstract class BaseHandlerRegistry implements HandlerRegistry
     /**
      * @template TResult
      * @template TMessage of Message<TResult>
+     *
      * @param class-string<TMessage> $messageClass
+     *
      * @return Handler<TResult, TMessage>|null
      */
     abstract protected function find(string $messageClass): ?Handler;
