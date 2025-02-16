@@ -23,6 +23,12 @@ use Trollbus\MessageBus\ReadonlyMessageContext;
 use Trollbus\MessageBus\Transaction\FakeTransactionProvider;
 use Trollbus\MessageBus\Transaction\InTransaction;
 use Trollbus\MessageBus\Transaction\WrapInTransactionMiddleware;
+use Trollbus\Tests\MessageBus\MessageBusTestCases\NestedDispatch\NestedDispatchLevel1;
+use Trollbus\Tests\MessageBus\MessageBusTestCases\NestedDispatch\NestedDispatchLevel1Handler;
+use Trollbus\Tests\MessageBus\MessageBusTestCases\NestedDispatch\NestedDispatchLevel2;
+use Trollbus\Tests\MessageBus\MessageBusTestCases\NestedDispatch\NestedDispatchLevel2Handler;
+use Trollbus\Tests\MessageBus\MessageBusTestCases\NestedDispatch\NestedDispatchLevel3;
+use Trollbus\Tests\MessageBus\MessageBusTestCases\NestedDispatch\NestedDispatchLevel3Handler;
 use Trollbus\Tests\MessageBus\MessageBusTestCases\SimpleMessage\SimpleMessage;
 use Trollbus\Tests\MessageBus\MessageBusTestCases\SimpleMessage\SimpleMessageHandler;
 use Trollbus\Tests\MessageBus\MessageBusTestCases\SimpleMessage\SimpleMessageResult;
@@ -84,6 +90,52 @@ final class MessageBusTest extends TestCase
             causationId: null,
         );
         $this->assertLogLevels([LogLevel::INFO, LogLevel::INFO]);
+    }
+
+    /**
+     * @throws MessageIdNotSet
+     */
+    public function testNestedDispatch(): void
+    {
+        $message = new NestedDispatchLevel1();
+
+        $messageBus = $this->createMessageBus(
+            (new ClassStringMap())
+                ->with(NestedDispatchLevel1::class, new NestedDispatchLevel1Handler())
+                ->with(NestedDispatchLevel2::class, new NestedDispatchLevel2Handler())
+                ->with(NestedDispatchLevel3::class, new NestedDispatchLevel3Handler()),
+        );
+
+        $messageBus->dispatch($message);
+        $messageContexts = $this->messageContextStack->pull();
+
+        self::assertCount(3, $messageContexts);
+
+        self::assertMessageContext(
+            messageContext: $messageContexts[0],
+            messageClass: NestedDispatchLevel1::class,
+            createdAt: new \DateTimeImmutable('2025-01-01 00:00:00'),
+            messageId: '1',
+            correlationId: '1',
+            causationId: null,
+        );
+        self::assertMessageContext(
+            messageContext: $messageContexts[1],
+            messageClass: NestedDispatchLevel2::class,
+            createdAt: new \DateTimeImmutable('2025-01-01 00:00:00'),
+            messageId: '2',
+            correlationId: '1',
+            causationId: '1',
+        );
+        self::assertMessageContext(
+            messageContext: $messageContexts[2],
+            messageClass: NestedDispatchLevel3::class,
+            createdAt: new \DateTimeImmutable('2025-01-01 00:00:00'),
+            messageId: '3',
+            correlationId: '1',
+            causationId: '2',
+        );
+        $this->assertLogLevels([LogLevel::INFO, LogLevel::INFO, LogLevel::INFO, LogLevel::INFO, LogLevel::INFO, LogLevel::INFO]);
     }
 
     private function createMessageBus(ClassStringMap $messageClassToHandler): MessageBus
