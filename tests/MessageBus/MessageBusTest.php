@@ -9,7 +9,8 @@ use Psr\Log\LogLevel;
 use Trollbus\Message\Message;
 use Trollbus\MessageBus\CreatedAt\CreatedAt;
 use Trollbus\MessageBus\CreatedAt\CreatedAtMiddleware;
-use Trollbus\MessageBus\HandlerRegistry\ArrayHandlerRegistry;
+use Trollbus\MessageBus\HandlerRegistry\ClassStringMap;
+use Trollbus\MessageBus\HandlerRegistry\ClassStringMapHandlerRegistry;
 use Trollbus\MessageBus\Logging\LogMiddleware;
 use Trollbus\MessageBus\MessageBus;
 use Trollbus\MessageBus\MessageId\CausationId;
@@ -59,9 +60,9 @@ final class MessageBusTest extends TestCase
             bar: 456,
         );
 
-        $messageBus = $this->createMessageBus([
-            SimpleMessage::class => new SimpleMessageHandler(),
-        ]);
+        $messageBus = $this->createMessageBus(
+            ClassStringMap::createWith(SimpleMessage::class, new SimpleMessageHandler()),
+        );
         $result = $messageBus->dispatch($message);
 
         // Assert result
@@ -85,10 +86,10 @@ final class MessageBusTest extends TestCase
         $this->assertLogLevels([LogLevel::INFO, LogLevel::INFO]);
     }
 
-    private function createMessageBus(array $messageClassToHandler): MessageBus
+    private function createMessageBus(ClassStringMap $messageClassToHandler): MessageBus
     {
         return new MessageBus(
-            handlerRegistry: new ArrayHandlerRegistry($messageClassToHandler),
+            handlerRegistry: new ClassStringMapHandlerRegistry($messageClassToHandler),
             middlewares: [
                 new CreatedAtMiddleware($this->clock),
                 new MessageIdMiddleware($this->messageIdGenerator),

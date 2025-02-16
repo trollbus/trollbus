@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Trollbus\MessageBus;
 
 use Trollbus\Message\Message;
-use Trollbus\MessageBus\HandlerRegistry\ArrayHandlerRegistry;
+use Trollbus\MessageBus\HandlerRegistry\ClassStringMapHandlerRegistry;
 use Trollbus\MessageBus\Middleware\Middleware;
 use Trollbus\MessageBus\Middleware\Pipeline;
 
@@ -15,7 +15,7 @@ final class MessageBus
      * @param iterable<Middleware> $middlewares
      */
     public function __construct(
-        private readonly HandlerRegistry $handlerRegistry = new ArrayHandlerRegistry(),
+        private readonly HandlerRegistry $handlerRegistry = new ClassStringMapHandlerRegistry(),
         private readonly iterable $middlewares = [],
     ) {}
 
