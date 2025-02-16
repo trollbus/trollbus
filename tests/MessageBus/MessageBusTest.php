@@ -41,19 +41,54 @@ final class MessageBusTest extends TestCase
 
     private MessageContextStack $messageContextStack;
 
-    private MessageBus $messageBus;
-
     protected function setUp(): void
     {
         $this->clock = new FakeClock(new \DateTimeImmutable('2025-01-01 00:00:00'));
         $this->messageIdGenerator = new SequenceMessageIdGenerator();
         $this->logger = new InMemoryLogger();
         $this->messageContextStack = new MessageContextStack();
+    }
 
-        $this->messageBus = new MessageBus(
-            handlerRegistry: new ArrayHandlerRegistry([
-                SimpleMessage::class => new SimpleMessageHandler(),
-            ]),
+    /**
+     * @throws MessageIdNotSet
+     */
+    public function testSimpleMessage(): void
+    {
+        $message = new SimpleMessage(
+            foo: 123,
+            bar: 456,
+        );
+
+        $messageBus = $this->createMessageBus([
+            SimpleMessage::class => new SimpleMessageHandler(),
+        ]);
+        $result = $messageBus->dispatch($message);
+
+        // Assert result
+        self::assertInstanceOf(SimpleMessageResult::class, $result);
+        self::assertSame(123, $result->foo);
+        self::assertSame(456, $result->bar);
+
+        // Assert message contexts
+        $messageContexts = $this->messageContextStack->pull();
+
+        self::assertCount(1, $messageContexts);
+
+        self::assertMessageContext(
+            messageContext: $messageContexts[0],
+            messageClass: SimpleMessage::class,
+            createdAt: new \DateTimeImmutable('2025-01-01 00:00:00'),
+            messageId: '1',
+            correlationId: '1',
+            causationId: null,
+        );
+        $this->assertLogLevels([LogLevel::INFO, LogLevel::INFO]);
+    }
+
+    private function createMessageBus(array $messageClassToHandler): MessageBus
+    {
+        return new MessageBus(
+            handlerRegistry: new ArrayHandlerRegistry($messageClassToHandler),
             middlewares: [
                 new CreatedAtMiddleware($this->clock),
                 new MessageIdMiddleware($this->messageIdGenerator),
@@ -67,39 +102,6 @@ final class MessageBusTest extends TestCase
     }
 
     /**
-     * @throws MessageIdNotSet
-     */
-    public function testSimpleMessage(): void
-    {
-        $query = new SimpleMessage(
-            foo: 123,
-            bar: 456,
-        );
-
-        $result = $this->messageBus->dispatch($query);
-
-        // Assert result
-        self::assertInstanceOf(SimpleMessageResult::class, $result);
-        self::assertSame(123, $result->foo);
-        self::assertSame(456, $result->bar);
-
-        // Assert message contexts
-        $messageContexts = $this->messageContextStack->pull();
-
-        self::assertCount(1, $messageContexts);
-
-        $this->assertMessageContext(
-            messageContext: $messageContexts[0],
-            messageClass: SimpleMessage::class,
-            createdAt: new \DateTimeImmutable('2025-01-01 00:00:00'),
-            messageId: '1',
-            correlationId: '1',
-            causationId: null,
-        );
-        $this->assertLogLevels([LogLevel::INFO, LogLevel::INFO]);
-    }
-
-    /**
      * @param class-string<Message> $messageClass
      * @param non-empty-string $messageId
      * @param non-empty-string $correlationId
@@ -107,7 +109,7 @@ final class MessageBusTest extends TestCase
      *
      * @throws MessageIdNotSet
      */
-    private function assertMessageContext(
+    private static function assertMessageContext(
         ReadonlyMessageContext $messageContext,
         string $messageClass,
         \DateTimeImmutable $createdAt,
