@@ -5,6 +5,6 @@ declare(strict_types=1);
 namespace Trollbus\Message;
 
 /**
- * @extends Message<null>
+ * @extends Message<void>
  */
 interface Event extends Message {}

@@ -9,8 +9,8 @@ use Trollbus\MessageBus\Handler;
 use Trollbus\MessageBus\MessageContext;
 
 /**
- * @template TMessage of Message<null>
- * @implements Handler<null, TMessage>
+ * @template TMessage of Message<void>
+ * @implements Handler<void, TMessage>
  */
 final class Publisher implements Handler
 {
