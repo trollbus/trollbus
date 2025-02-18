@@ -9,6 +9,9 @@ use Psr\Log\LogLevel;
 use Trollbus\Message\Message;
 use Trollbus\MessageBus\CreatedAt\CreatedAt;
 use Trollbus\MessageBus\CreatedAt\CreatedAtMiddleware;
+use Trollbus\MessageBus\EntityHandler\EntityHandler;
+use Trollbus\MessageBus\EntityHandler\EntityNotFound;
+use Trollbus\MessageBus\EntityHandler\PropertyCriteriaResolver;
 use Trollbus\MessageBus\HandlerRegistry\ClassStringMap;
 use Trollbus\MessageBus\HandlerRegistry\ClassStringMapHandlerRegistry;
 use Trollbus\MessageBus\Logging\LogMiddleware;
@@ -23,6 +26,10 @@ use Trollbus\MessageBus\ReadonlyMessageContext;
 use Trollbus\MessageBus\Transaction\FakeTransactionProvider;
 use Trollbus\MessageBus\Transaction\InTransaction;
 use Trollbus\MessageBus\Transaction\WrapInTransactionMiddleware;
+use Trollbus\Tests\MessageBus\MessageBusTestCases\EntityHandler\EditEntity;
+use Trollbus\Tests\MessageBus\MessageBusTestCases\EntityHandler\Entity;
+use Trollbus\Tests\MessageBus\MessageBusTestCases\EntityHandler\EntityEdited;
+use Trollbus\Tests\MessageBus\MessageBusTestCases\EntityHandler\InMemoryEntityFinderAndSaver;
 use Trollbus\Tests\MessageBus\MessageBusTestCases\NestedDispatch\NestedDispatchLevel1;
 use Trollbus\Tests\MessageBus\MessageBusTestCases\NestedDispatch\NestedDispatchLevel1Handler;
 use Trollbus\Tests\MessageBus\MessageBusTestCases\NestedDispatch\NestedDispatchLevel2;
@@ -137,6 +144,150 @@ final class MessageBusTest extends TestCase
             causationId: '2',
         );
         $this->assertLogLevels([LogLevel::INFO, LogLevel::INFO, LogLevel::INFO, LogLevel::INFO, LogLevel::INFO, LogLevel::INFO]);
+    }
+
+    public function testEntityHandlerThrowsEntityNotFound(): void
+    {
+        $this->expectException(EntityNotFound::class);
+
+        $finderAndSaver = new InMemoryEntityFinderAndSaver();
+        $handler = new EntityHandler(
+            id: EntityHandler::class,
+            finder: $finderAndSaver,
+            criteriaResolver: new PropertyCriteriaResolver(),
+            saver: $finderAndSaver,
+            entityClass: Entity::class,
+            handlerMethod: 'edit',
+            findBy: ['id' => 'id'],
+            factoryMethod: null,
+        );
+
+        $message = new EditEntity(
+            id: '1',
+            title: 'Title',
+            description: 'Description',
+        );
+
+        $messageBus = $this->createMessageBus(
+            (new ClassStringMap())->with(EditEntity::class, $handler),
+        );
+
+        $messageBus->dispatch($message);
+    }
+
+    /**
+     * @throws MessageIdNotSet
+     */
+    public function testEntityHandlerWithFactoryMethod(): void
+    {
+        $finderAndSaver = new InMemoryEntityFinderAndSaver();
+        $handler = new EntityHandler(
+            id: EntityHandler::class,
+            finder: $finderAndSaver,
+            criteriaResolver: new PropertyCriteriaResolver(),
+            saver: $finderAndSaver,
+            entityClass: Entity::class,
+            handlerMethod: 'edit',
+            findBy: ['id' => 'id'],
+            factoryMethod: 'create',
+        );
+
+        $message = new EditEntity(
+            id: '1',
+            title: 'Title',
+            description: 'Description',
+        );
+
+        $messageBus = $this->createMessageBus(
+            (new ClassStringMap())->with(EditEntity::class, $handler),
+        );
+
+        $messageBus->dispatch($message);
+        $messageContexts = $this->messageContextStack->pull();
+        $entity = $finderAndSaver->findBy(Entity::class, ['id' => '1']);
+
+        self::assertInstanceOf(Entity::class, $entity);
+        self::assertSame('1', $entity->getId());
+        self::assertSame('Title', $entity->getTitle());
+        self::assertSame('Description', $entity->getDescription());
+
+        self::assertSame(1, $finderAndSaver->countEntitySaves($entity));
+
+        self::assertCount(2, $messageContexts);
+        self::assertMessageContext(
+            messageContext: $messageContexts[0],
+            messageClass: EditEntity::class,
+            createdAt: new \DateTimeImmutable('2025-01-01 00:00:00'),
+            messageId: '1',
+            correlationId: '1',
+            causationId: null,
+        );
+        self::assertMessageContext(
+            messageContext: $messageContexts[1],
+            messageClass: EntityEdited::class,
+            createdAt: new \DateTimeImmutable('2025-01-01 00:00:00'),
+            messageId: '2',
+            correlationId: '1',
+            causationId: '1',
+        );
+    }
+
+    /**
+     * @throws MessageIdNotSet
+     */
+    public function testEntityHandlerEditExisting(): void
+    {
+        $finderAndSaver = new InMemoryEntityFinderAndSaver();
+        $entity = Entity::create(new EditEntity('1', 'Old Title', 'Old Description'));
+        $finderAndSaver->save($entity);
+
+        $handler = new EntityHandler(
+            id: EntityHandler::class,
+            finder: $finderAndSaver,
+            criteriaResolver: new PropertyCriteriaResolver(),
+            saver: $finderAndSaver,
+            entityClass: Entity::class,
+            handlerMethod: 'edit',
+            findBy: ['id' => 'id'],
+            factoryMethod: null,
+        );
+
+        $message = new EditEntity(
+            id: '1',
+            title: 'Title',
+            description: 'Description',
+        );
+
+        $messageBus = $this->createMessageBus(
+            (new ClassStringMap())->with(EditEntity::class, $handler),
+        );
+
+        $messageBus->dispatch($message);
+        $messageContexts = $this->messageContextStack->pull();
+
+        self::assertSame('1', $entity->getId());
+        self::assertSame('Title', $entity->getTitle());
+        self::assertSame('Description', $entity->getDescription());
+
+        self::assertSame(2, $finderAndSaver->countEntitySaves($entity));
+
+        self::assertCount(2, $messageContexts);
+        self::assertMessageContext(
+            messageContext: $messageContexts[0],
+            messageClass: EditEntity::class,
+            createdAt: new \DateTimeImmutable('2025-01-01 00:00:00'),
+            messageId: '1',
+            correlationId: '1',
+            causationId: null,
+        );
+        self::assertMessageContext(
+            messageContext: $messageContexts[1],
+            messageClass: EntityEdited::class,
+            createdAt: new \DateTimeImmutable('2025-01-01 00:00:00'),
+            messageId: '2',
+            correlationId: '1',
+            causationId: '1',
+        );
     }
 
     private function createMessageBus(ClassStringMap $messageClassToHandler): MessageBus
