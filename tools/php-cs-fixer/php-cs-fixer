@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+DIR=$(dirname "$0")
+
+if [ ! -d "${DIR}/vendor" ]; then
+  composer install --working-dir "${DIR}" --no-dev --no-ansi
+fi
+
+# Ignore check unsupported php 8.4 version
+PHP_CS_FIXER_IGNORE_ENV=1 "${DIR}/vendor/bin/php-cs-fixer" "$@"

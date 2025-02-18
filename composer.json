@@ -12,8 +12,8 @@
         "sort-packages": true
     },
     "scripts": {
-        "cs-check": "./tools/php-cs-fixer/vendor/bin/php-cs-fixer check",
-        "cs-fix": "./tools/php-cs-fixer/vendor/bin/php-cs-fixer fix",
+        "cs-check": "./tools/php-cs-fixer/php-cs-fixer check",
+        "cs-fix": "./tools/php-cs-fixer/php-cs-fixer fix",
         "psalm": "./tools/psalm/vendor/bin/psalm",
         "check": [
             "@cs-check",
