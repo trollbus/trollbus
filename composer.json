@@ -15,7 +15,7 @@
         "cs-check": "./tools/php-cs-fixer/php-cs-fixer check",
         "cs-fix": "./tools/php-cs-fixer/php-cs-fixer fix",
         "psalm": "./tools/psalm/vendor/bin/psalm",
-        "check": [
+        "checks": [
             "@cs-check",
             "@psalm --no-cache",
             "phpunit"
