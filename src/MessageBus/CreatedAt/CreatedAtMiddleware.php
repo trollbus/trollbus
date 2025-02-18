@@ -15,6 +15,7 @@ final class CreatedAtMiddleware implements Middleware
         private readonly ?ClockInterface $clock = null,
     ) {}
 
+    #[\Override]
     public function handle(MessageContext $messageContext, Pipeline $pipeline): mixed
     {
         if (!$messageContext->hasStamp(CreatedAt::class)) {

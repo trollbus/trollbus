@@ -68,7 +68,10 @@ final class Pipeline
         }
 
         if ($this->middlewares->valid()) {
-            return $this->middlewares->current()->handle($this->messageContext, $this);
+            /** @var Middleware $middleware */
+            $middleware = $this->middlewares->current();
+
+            return $middleware->handle($this->messageContext, $this);
         }
 
         $this->handled = true;

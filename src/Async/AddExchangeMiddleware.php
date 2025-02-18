@@ -14,6 +14,7 @@ final class AddExchangeMiddleware implements Middleware
         private readonly ExchangeResolver $exchangeResolver,
     ) {}
 
+    #[\Override]
     public function handle(MessageContext $messageContext, Pipeline $pipeline): mixed
     {
         if (!$messageContext->hasStamp(Exchange::class)) {

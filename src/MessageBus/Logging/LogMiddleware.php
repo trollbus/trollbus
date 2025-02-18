@@ -19,6 +19,7 @@ final class LogMiddleware implements Middleware
     /**
      * @throws \Throwable
      */
+    #[\Override]
     public function handle(MessageContext $messageContext, Pipeline $pipeline): mixed
     {
         $this->logger->info('Start handle message {message_class}.', [

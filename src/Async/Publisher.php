@@ -22,11 +22,13 @@ final class Publisher implements Handler
         private readonly TransportPublisher $publisher,
     ) {}
 
+    #[\Override]
     public function id(): string
     {
         return $this->id;
     }
 
+    #[\Override]
     public function handle(MessageContext $messageContext): mixed
     {
         $this->publisher->publish([$messageContext->getEnvelop()]);

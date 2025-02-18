@@ -14,6 +14,7 @@ final class WrapInTransactionMiddleware implements Middleware
         private readonly TransactionProvider $transactionProvider,
     ) {}
 
+    #[\Override]
     public function handle(MessageContext $messageContext, Pipeline $pipeline): mixed
     {
         if ($messageContext->hasAttribute(InTransaction::class)) {

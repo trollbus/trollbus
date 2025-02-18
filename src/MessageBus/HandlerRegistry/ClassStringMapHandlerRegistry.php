@@ -12,6 +12,7 @@ final class ClassStringMapHandlerRegistry extends BaseHandlerRegistry
         private readonly ClassStringMap $messageClassToHandlerMap = new ClassStringMap(),
     ) {}
 
+    #[\Override]
     protected function find(string $messageClass): ?Handler
     {
         return $this->messageClassToHandlerMap->find($messageClass);

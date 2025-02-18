@@ -10,6 +10,7 @@ use Trollbus\MessageBus\Middleware\Pipeline;
 
 final class TryPublishViaOutboxMiddleware implements Middleware
 {
+    #[\Override]
     public function handle(MessageContext $messageContext, Pipeline $pipeline): mixed
     {
         $outbox = $messageContext->getAttribute(Outbox::class);

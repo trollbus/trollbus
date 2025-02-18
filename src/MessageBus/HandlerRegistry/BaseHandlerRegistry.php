@@ -24,6 +24,7 @@ abstract class BaseHandlerRegistry implements HandlerRegistry
      *
      * @throws HandlerNotFound
      */
+    #[\Override]
     final public function get(string $messageClass): Handler
     {
         $handler = $this->find($messageClass);

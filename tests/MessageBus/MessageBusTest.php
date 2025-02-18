@@ -48,6 +48,7 @@ final class MessageBusTest extends TestCase
 
     private MessageContextStack $messageContextStack;
 
+    #[\Override]
     protected function setUp(): void
     {
         $this->clock = new FakeClock(new \DateTimeImmutable('2025-01-01 00:00:00'));

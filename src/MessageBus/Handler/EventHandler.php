@@ -22,6 +22,7 @@ final class EventHandler implements Handler
     /**
      * @throws \JsonException
      */
+    #[\Override]
     public function id(): string
     {
         $ids = [];
@@ -35,6 +36,7 @@ final class EventHandler implements Handler
         return json_encode($ids, JSON_THROW_ON_ERROR);
     }
 
+    #[\Override]
     public function handle(MessageContext $messageContext): mixed
     {
         foreach ($this->handlers as $handler) {

@@ -16,11 +16,13 @@ final class FakeClock implements ClockInterface, Sleep
         $this->timestamp = $timestamp instanceof \DateTimeInterface ? $timestamp->getTimestamp() : $timestamp;
     }
 
+    #[\Override]
     public function sleep(int $seconds): void
     {
         $this->timestamp += $seconds;
     }
 
+    #[\Override]
     public function now(): \DateTimeImmutable
     {
         return \DateTimeImmutable::createFromFormat('U', (string) $this->timestamp) ?: throw new \RuntimeException();

@@ -14,6 +14,7 @@ final class MessageIdMiddleware implements Middleware
         private readonly MessageIdGenerator $generator,
     ) {}
 
+    #[\Override]
     public function handle(MessageContext $messageContext, Pipeline $pipeline): mixed
     {
         if (!$messageContext->hasStamp(MessageId::class)) {

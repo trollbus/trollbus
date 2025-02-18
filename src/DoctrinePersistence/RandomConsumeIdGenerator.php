@@ -13,6 +13,7 @@ final class RandomConsumeIdGenerator implements ConsumeIdGenerator
         private readonly int $bytes = 16,
     ) {}
 
+    #[\Override]
     public function generate(): string
     {
         return bin2hex(random_bytes($this->bytes));

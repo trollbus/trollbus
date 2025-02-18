@@ -18,6 +18,7 @@ final class OutboxHandlerMiddleware implements Middleware
         private readonly TransportPublisher $transportPublisher,
     ) {}
 
+    #[\Override]
     public function handle(MessageContext $messageContext, Pipeline $pipeline): mixed
     {
         if ($messageContext->hasAttribute(Outbox::class)) {

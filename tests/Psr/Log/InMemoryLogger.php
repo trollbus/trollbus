@@ -11,6 +11,7 @@ final class InMemoryLogger extends AbstractLogger
     /** @var list<array{string, string, array}> */
     private array $logs = [];
 
+    #[\Override]
     public function log($level, \Stringable|string $message, array $context = []): void
     {
         $this->logs[] = [(string) $level, (string) $message, $context];

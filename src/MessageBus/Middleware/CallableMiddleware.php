@@ -24,6 +24,7 @@ final class CallableMiddleware implements Middleware
      * @param MessageContext<TResult, TMessage> $messageContext
      * @param Pipeline<TResult, TMessage> $pipeline
      */
+    #[\Override]
     public function handle(MessageContext $messageContext, Pipeline $pipeline): mixed
     {
         return ($this->callable)($messageContext, $pipeline);

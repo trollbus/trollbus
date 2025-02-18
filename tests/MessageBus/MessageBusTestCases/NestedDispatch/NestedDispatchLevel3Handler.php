@@ -12,11 +12,13 @@ use Trollbus\MessageBus\MessageContext;
  */
 final class NestedDispatchLevel3Handler implements Handler
 {
+    #[\Override]
     public function id(): string
     {
         return 'nested-dispatch-level-3';
     }
 
+    #[\Override]
     public function handle(MessageContext $messageContext): mixed
     {
         return null;

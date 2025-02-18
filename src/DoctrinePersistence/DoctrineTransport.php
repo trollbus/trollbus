@@ -121,7 +121,13 @@ final class DoctrineTransport
 
         /** @psalm-suppress MixedAssignment */
         if (\is_resource($data['envelope'])) {
-            $envelope = unserialize(stream_get_contents($data['envelope']));
+            $content = stream_get_contents($data['envelope']);
+
+            if (false === $content) {
+                throw new \RuntimeException('Can not get stream content.');
+            }
+
+            $envelope = unserialize($content);
         } else {
             $envelope = unserialize($data['envelope']);
         }

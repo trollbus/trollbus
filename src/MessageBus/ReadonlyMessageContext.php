@@ -27,7 +27,7 @@ abstract class ReadonlyMessageContext
     /**
      * @return Envelope<TResult, TMessage>
      */
-    public function getEnvelop(): Envelope
+    final public function getEnvelop(): Envelope
     {
         return $this->envelop;
     }
@@ -35,7 +35,7 @@ abstract class ReadonlyMessageContext
     /**
      * @return TMessage
      */
-    public function getMessage(): Message
+    final public function getMessage(): Message
     {
         return $this->envelop->message;
     }
@@ -44,7 +44,7 @@ abstract class ReadonlyMessageContext
      * @return non-empty-string
      * @throws MessageIdNotSet
      */
-    public function getMessageId(): string
+    final public function getMessageId(): string
     {
         return $this->envelop->getMessageId();
     }
@@ -52,7 +52,7 @@ abstract class ReadonlyMessageContext
     /**
      * @return class-string<TMessage>
      */
-    public function getMessageClass(): string
+    final public function getMessageClass(): string
     {
         return $this->envelop->getMessageClass();
     }
@@ -60,7 +60,7 @@ abstract class ReadonlyMessageContext
     /**
      * @return array<class-string<Stamp>, Stamp>
      */
-    public function getStamps(): array
+    final public function getStamps(): array
     {
         return $this->envelop->stamps;
     }
@@ -68,7 +68,7 @@ abstract class ReadonlyMessageContext
     /**
      * @param class-string<Stamp> $class
      */
-    public function hasStamp(string $class): bool
+    final public function hasStamp(string $class): bool
     {
         return $this->envelop->hasStamp($class);
     }
@@ -78,7 +78,7 @@ abstract class ReadonlyMessageContext
      * @param class-string<TStamp> $class
      * @return TStamp|null
      */
-    public function getStamp(string $class): ?Stamp
+    final public function getStamp(string $class): ?Stamp
     {
         return $this->envelop->getStamp($class);
     }
@@ -86,7 +86,7 @@ abstract class ReadonlyMessageContext
     /**
      * @return array<class-string<ContextAttribute>, ContextAttribute>
      */
-    public function getAttributes(): array
+    final public function getAttributes(): array
     {
         return $this->attributes;
     }
@@ -94,7 +94,7 @@ abstract class ReadonlyMessageContext
     /**
      * @param class-string<ContextAttribute> $class
      */
-    public function hasAttribute(string $class): bool
+    final public function hasAttribute(string $class): bool
     {
         return isset($this->attributes[$class]);
     }
@@ -104,7 +104,7 @@ abstract class ReadonlyMessageContext
      * @param class-string<TContextAttribute> $class
      * @return TContextAttribute|null
      */
-    public function getAttribute(string $class): ?ContextAttribute
+    final public function getAttribute(string $class): ?ContextAttribute
     {
         /** @var TContextAttribute|null */
         return $this->attributes[$class] ?? null;

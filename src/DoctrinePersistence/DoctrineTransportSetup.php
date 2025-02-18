@@ -8,6 +8,7 @@ use Trollbus\Async\TransportSetup;
 
 final class DoctrineTransportSetup implements TransportSetup
 {
+    #[\Override]
     public function setup(array $exchangeToQueues): void
     {
         // Nothing ...

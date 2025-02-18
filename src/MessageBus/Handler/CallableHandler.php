@@ -24,11 +24,13 @@ final class CallableHandler implements Handler
         private readonly mixed $handler,
     ) {}
 
+    #[\Override]
     public function id(): string
     {
         return $this->id;
     }
 
+    #[\Override]
     public function handle(MessageContext $messageContext): mixed
     {
         return ($this->handler)($messageContext->getMessage(), $messageContext);

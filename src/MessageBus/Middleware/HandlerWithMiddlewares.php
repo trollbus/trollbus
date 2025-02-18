@@ -24,11 +24,13 @@ final class HandlerWithMiddlewares implements Handler
         private readonly iterable $middlewares,
     ) {}
 
+    #[\Override]
     public function id(): string
     {
         return $this->inner->id();
     }
 
+    #[\Override]
     public function handle(MessageContext $messageContext): mixed
     {
         return Pipeline::handle($messageContext, $this->inner, $this->middlewares);

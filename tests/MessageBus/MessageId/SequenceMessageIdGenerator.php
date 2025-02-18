@@ -10,6 +10,7 @@ final class SequenceMessageIdGenerator implements MessageIdGenerator
 {
     private int $index = 0;
 
+    #[\Override]
     public function generate(): string
     {
         ++$this->index;

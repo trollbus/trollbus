@@ -1,10 +1,6 @@
 {
     "require": {
-        "vimeo/psalm": "^5.26",
-        "psalm/plugin-phpunit": "^0.19.1"
-    },
-    "replace": {
-        "amphp/amp": "*",
-        "amphp/byte-stream": "*"
+        "vimeo/psalm": "^6.7.1",
+        "psalm/plugin-phpunit": "^0.19.2"
     }
 }

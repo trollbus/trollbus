@@ -12,11 +12,13 @@ use Trollbus\MessageBus\MessageContext;
  */
 final class SimpleMessageHandler implements Handler
 {
+    #[\Override]
     public function id(): string
     {
         return 'simple-query';
     }
 
+    #[\Override]
     public function handle(MessageContext $messageContext): mixed
     {
         /** @var SimpleMessage $message */

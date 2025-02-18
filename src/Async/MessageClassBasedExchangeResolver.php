@@ -6,6 +6,7 @@ namespace Trollbus\Async;
 
 final class MessageClassBasedExchangeResolver implements ExchangeResolver
 {
+    #[\Override]
     public function resolve(string $messageClass): string
     {
         /** @var non-empty-string */

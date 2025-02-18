@@ -19,6 +19,7 @@ final class DoctrineTransportConsumer implements TransportConsumer
         private readonly float $interval,
     ) {}
 
+    #[\Override]
     public function runConsume(Consumer $consumer): \Closure
     {
         EventLoop::repeat($this->interval, function () use ($consumer): void {
@@ -45,6 +46,7 @@ final class DoctrineTransportConsumer implements TransportConsumer
         return fn() => $this->abort($consumer);
     }
 
+    #[\Override]
     public function disconnect(): void
     {
         // Nothing ...

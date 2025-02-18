@@ -13,6 +13,7 @@ final class CausationIdMiddleware implements Middleware
     /**
      * @throws MessageIdNotSet
      */
+    #[\Override]
     public function handle(MessageContext $messageContext, Pipeline $pipeline): mixed
     {
         if ($messageContext->hasStamp(CausationId::class)) {

@@ -17,6 +17,7 @@ final class MessageContextStackMiddleware implements Middleware
         private readonly MessageContextStack $messageContextStack,
     ) {}
 
+    #[\Override]
     public function handle(MessageContext $messageContext, Pipeline $pipeline): mixed
     {
         $this->messageContextStack->push($messageContext);

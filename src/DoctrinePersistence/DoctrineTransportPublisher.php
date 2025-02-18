@@ -18,6 +18,7 @@ final class DoctrineTransportPublisher implements TransportPublisher
      * @throws MessageIdNotSet
      * @throws Exception
      */
+    #[\Override]
     public function publish(array $envelopes): void
     {
         foreach ($envelopes as $envelope) {
