@@ -12,8 +12,12 @@ use Trollbus\MessageBus\CreatedAt\CreatedAtMiddleware;
 use Trollbus\MessageBus\EntityHandler\EntityHandler;
 use Trollbus\MessageBus\EntityHandler\EntityNotFound;
 use Trollbus\MessageBus\EntityHandler\PropertyCriteriaResolver;
+use Trollbus\MessageBus\Envelope;
+use Trollbus\MessageBus\Handler\CallableHandler;
+use Trollbus\MessageBus\Handler\EventHandler;
 use Trollbus\MessageBus\HandlerRegistry\ClassStringMap;
 use Trollbus\MessageBus\HandlerRegistry\ClassStringMapHandlerRegistry;
+use Trollbus\MessageBus\HandlerRegistry\HandlerNotFound;
 use Trollbus\MessageBus\Logging\LogMiddleware;
 use Trollbus\MessageBus\MessageBus;
 use Trollbus\MessageBus\MessageId\CausationId;
@@ -30,15 +34,19 @@ use Trollbus\Tests\MessageBus\MessageBusTestCases\EntityHandler\EditEntity;
 use Trollbus\Tests\MessageBus\MessageBusTestCases\EntityHandler\Entity;
 use Trollbus\Tests\MessageBus\MessageBusTestCases\EntityHandler\EntityEdited;
 use Trollbus\Tests\MessageBus\MessageBusTestCases\EntityHandler\InMemoryEntityFinderAndSaver;
+use Trollbus\Tests\MessageBus\MessageBusTestCases\EventHandler\SomeEvent;
 use Trollbus\Tests\MessageBus\MessageBusTestCases\NestedDispatch\NestedDispatchLevel1;
 use Trollbus\Tests\MessageBus\MessageBusTestCases\NestedDispatch\NestedDispatchLevel1Handler;
 use Trollbus\Tests\MessageBus\MessageBusTestCases\NestedDispatch\NestedDispatchLevel2;
 use Trollbus\Tests\MessageBus\MessageBusTestCases\NestedDispatch\NestedDispatchLevel2Handler;
 use Trollbus\Tests\MessageBus\MessageBusTestCases\NestedDispatch\NestedDispatchLevel3;
 use Trollbus\Tests\MessageBus\MessageBusTestCases\NestedDispatch\NestedDispatchLevel3Handler;
+use Trollbus\Tests\MessageBus\MessageBusTestCases\NoHandler\NoHandlerEvent;
+use Trollbus\Tests\MessageBus\MessageBusTestCases\NoHandler\NoHandlerMessage;
 use Trollbus\Tests\MessageBus\MessageBusTestCases\SimpleMessage\SimpleMessage;
 use Trollbus\Tests\MessageBus\MessageBusTestCases\SimpleMessage\SimpleMessageHandler;
 use Trollbus\Tests\MessageBus\MessageBusTestCases\SimpleMessage\SimpleMessageResult;
+use Trollbus\Tests\MessageBus\MessageBusTestCases\SimpleMessage\SimpleMessageStamp;
 use Trollbus\Tests\MessageBus\MessageContextStack\MessageContextStack;
 use Trollbus\Tests\MessageBus\MessageContextStack\MessageContextStackMiddleware;
 use Trollbus\Tests\MessageBus\MessageId\SequenceMessageIdGenerator;
@@ -98,6 +106,49 @@ final class MessageBusTest extends TestCase
             causationId: null,
         );
         $this->assertLogLevels([LogLevel::INFO, LogLevel::INFO]);
+
+        self::assertFalse($messageContexts[0]->hasStamp(SimpleMessageStamp::class));
+        self::assertNull($messageContexts[0]->getStamp(SimpleMessageStamp::class));
+    }
+
+    /**
+     * @throws MessageIdNotSet
+     */
+    public function testSimpleMessageWithStamps(): void
+    {
+        $message = new SimpleMessage(
+            foo: 123,
+            bar: 456,
+        );
+        $envelope = Envelope::wrap($message)->withStamps($stamp = new SimpleMessageStamp('stamp'));
+
+        $messageBus = $this->createMessageBus(
+            ClassStringMap::createWith(SimpleMessage::class, new SimpleMessageHandler()),
+        );
+        $result = $messageBus->dispatch($envelope);
+
+        // Assert result
+        self::assertInstanceOf(SimpleMessageResult::class, $result);
+        self::assertSame(123, $result->foo);
+        self::assertSame(456, $result->bar);
+
+        // Assert message contexts
+        $messageContexts = $this->messageContextStack->pull();
+
+        self::assertCount(1, $messageContexts);
+
+        self::assertMessageContext(
+            messageContext: $messageContexts[0],
+            messageClass: SimpleMessage::class,
+            createdAt: new \DateTimeImmutable('2025-01-01 00:00:00'),
+            messageId: '1',
+            correlationId: '1',
+            causationId: null,
+        );
+        $this->assertLogLevels([LogLevel::INFO, LogLevel::INFO]);
+
+        self::assertTrue($messageContexts[0]->hasStamp(SimpleMessageStamp::class));
+        self::assertSame($stamp, $messageContexts[0]->getStamp(SimpleMessageStamp::class));
     }
 
     /**
@@ -144,6 +195,49 @@ final class MessageBusTest extends TestCase
             causationId: '2',
         );
         $this->assertLogLevels([LogLevel::INFO, LogLevel::INFO, LogLevel::INFO, LogLevel::INFO, LogLevel::INFO, LogLevel::INFO]);
+    }
+
+    public function testCallableHandler(): void
+    {
+        $message = new SimpleMessage(foo: 123, bar: 456);
+        $messageBus = $this->createMessageBus(
+            (new ClassStringMap())
+                ->with(
+                    SimpleMessage::class,
+                    new CallableHandler(
+                        id: 'callable handler',
+                        handler: static fn(SimpleMessage $m) => new SimpleMessageResult(foo: $m->foo, bar: $m->bar),
+                    ),
+                ),
+        );
+
+        $result = $messageBus->dispatch($message);
+        self::assertEquals(new SimpleMessageResult(foo: 123, bar: 456), $result);
+
+        $handlerId = (string) ($this->logger->getLogs()[0][2]['handler_id'] ?? throw new \LogicException('No handler id.'));
+        self::assertSame('callable handler', $handlerId);
+    }
+
+    public function testEventHandler(): void
+    {
+        $handler1Handled = false;
+        /** @var CallableHandler<void, SomeEvent> $handler1 */
+        $handler1 = new CallableHandler('handler1', static function () use (&$handler1Handled): void { $handler1Handled = true; });
+        $handler2Handled = false;
+        /** @var CallableHandler<void, SomeEvent> $handler2 */
+        $handler2 = new CallableHandler('handler2', static function () use (&$handler2Handled): void { $handler2Handled = true; });
+
+        $messageBus = $this->createMessageBus(
+            (new ClassStringMap())
+                ->with(SomeEvent::class, new EventHandler([$handler1, $handler2])),
+        );
+        $messageBus->dispatch(new SomeEvent());
+
+        self::assertTrue($handler1Handled);
+        self::assertTrue($handler2Handled);
+
+        $handlerId = (string) ($this->logger->getLogs()[0][2]['handler_id'] ?? throw new \LogicException('No handler id.'));
+        self::assertSame('["handler1","handler2"]', $handlerId);
     }
 
     public function testEntityHandlerThrowsEntityNotFound(): void
@@ -288,6 +382,27 @@ final class MessageBusTest extends TestCase
             correlationId: '1',
             causationId: '1',
         );
+    }
+
+    public function testDispatchThrowsHandlerNotFound(): void
+    {
+        $this->expectException(HandlerNotFound::class);
+
+        $messageBus = $this->createMessageBus(new ClassStringMap());
+        $messageBus->dispatch(new NoHandlerMessage());
+    }
+
+    public function testDispatchEventNoHandler(): void
+    {
+        $messageBus = $this->createMessageBus(new ClassStringMap());
+        $messageBus->dispatch(new NoHandlerEvent());
+
+        $messageContexts = $this->messageContextStack->pull();
+
+        self::assertCount(1, $messageContexts);
+
+        $handlerId = (string) ($this->logger->getLogs()[0][2]['handler_id'] ?? throw new \LogicException('No handler id.'));
+        self::assertSame('null event handler', $handlerId);
     }
 
     private function createMessageBus(ClassStringMap $messageClassToHandler): MessageBus
