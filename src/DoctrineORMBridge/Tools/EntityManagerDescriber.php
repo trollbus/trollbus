@@ -7,6 +7,10 @@ namespace Trollbus\DoctrineORMBridge\Tools;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
 
+/**
+ * @internal
+ * @psalm-internal Trollbus\DoctrineORMBridge
+ */
 final class EntityManagerDescriber
 {
     public static function getEntityManager(ManagerRegistry $doctrine, ?string $entityManagerName): EntityManagerInterface
