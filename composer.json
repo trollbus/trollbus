@@ -40,6 +40,8 @@
         "psr/log": "^3.0"
     },
     "require-dev": {
-        "phpunit/phpunit": "^10.5"
+        "ext-pdo": "*",
+        "phpunit/phpunit": "^10.5",
+        "symfony/cache": "^7.2"
     }
 }

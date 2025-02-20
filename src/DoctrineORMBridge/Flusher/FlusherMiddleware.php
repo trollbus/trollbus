@@ -24,10 +24,10 @@ final class FlusherMiddleware implements Middleware
             return $pipeline->continue();
         }
 
-        $em = EntityManagerDescriber::getEntityManager($this->doctrine, $this->entityManagerName);
-        $result = $pipeline->continue();
-        $em->flush();
         $messageContext->addAttributes(new Flushed());
+        $result = $pipeline->continue();
+        $em = EntityManagerDescriber::getEntityManager($this->doctrine, $this->entityManagerName);
+        $em->flush();
 
         return $result;
     }
