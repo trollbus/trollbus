@@ -17,7 +17,7 @@ final class CallableMiddleware implements Middleware
      * @param callable(MessageContext<TResult, TMessage>, Pipeline<TResult, TMessage>): TResult $callable
      */
     public function __construct(
-        private mixed $callable,
+        private readonly mixed $callable,
     ) {}
 
     /**
