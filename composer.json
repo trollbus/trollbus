@@ -50,6 +50,6 @@
     "require-dev": {
         "ext-pdo": "*",
         "phpunit/phpunit": "^10.5",
-        "symfony/cache": "^7.2"
+        "symfony/cache": "^6.4 || ^7.0"
     }
 }
