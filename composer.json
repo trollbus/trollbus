@@ -1,6 +1,7 @@
 {
     "name": "trollbus/trollbus",
     "description": "Simple implementation of message bus",
+    "license": "MIT",
     "keywords": ["message bus"],
     "authors": [
         {
