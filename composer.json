@@ -18,9 +18,11 @@
         "phpunit": "phpunit",
         "composer-require-checker": "./tools/composer-require-checker/vendor/bin/composer-require-checker check",
         "composer-unused": "./tools/composer-unused/vendor/bin/composer-unused",
+        "deptrack": "./tools/deptrac/vendor/bin/deptrac --cache-file var/.deptrac.cache analyse",
         "checks": [
             "@cs-check",
             "@psalm --no-cache",
+            "@deptrack --no-cache",
             "phpunit",
             "@composer-require-checker",
             "@composer-unused"

@@ -1,0 +1,32 @@
+deptrac:
+  analyser:
+    types:
+      - class
+      - class_superglobal
+      - file
+      - function
+      - function_call
+      - function_superglobal
+      - use
+
+  paths:
+    - ./src
+
+  layers:
+    - name: Message
+      collectors:
+        - type: directory
+          value: '%projectDirectory%/src/Message/.*'
+    - name: MessageBus
+      collectors:
+        - type: directory
+          value: '%projectDirectory%/src/MessageBus/.*'
+    - name: DoctrineORMBridge
+      collectors:
+        - type: directory
+          value: '%projectDirectory%/src/DoctrineORMBridge/.*'
+
+  ruleset:
+    Message: ~
+    MessageBus: [Message]
+    DoctrineORMBridge: [Message, MessageBus]

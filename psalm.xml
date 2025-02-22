@@ -9,6 +9,9 @@
     findUnusedCode="false"
     cacheDirectory="var/psalm"
 >
+    <issueHandlers>
+        <InternalClass errorLevel="error"/>
+    </issueHandlers>
     <projectFiles>
         <directory name="src"/>
         <directory name="tests"/>
