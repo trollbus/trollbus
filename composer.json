@@ -16,10 +16,14 @@
         "cs-fix": "./tools/php-cs-fixer/php-cs-fixer fix",
         "psalm": "./tools/psalm/vendor/bin/psalm",
         "phpunit": "phpunit",
+        "composer-require-checker": "./tools/composer-require-checker/vendor/bin/composer-require-checker check",
+        "composer-unused": "./tools/composer-unused/vendor/bin/composer-unused",
         "checks": [
             "@cs-check",
             "@psalm --no-cache",
-            "phpunit"
+            "phpunit",
+            "@composer-require-checker",
+            "@composer-unused"
         ]
     },
     "autoload": {
@@ -34,8 +38,8 @@
     },
     "require": {
         "php": "8.1.* || 8.2.* || 8.3.* || 8.4.*",
-        "amphp/amp": "^3.0",
         "doctrine/orm": "^2.20 || ^3.0",
+        "doctrine/persistence": "*",
         "psr/clock": "^1.0",
         "psr/log": "^3.0"
     },
