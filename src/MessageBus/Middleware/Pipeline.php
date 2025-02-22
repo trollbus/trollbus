@@ -40,6 +40,7 @@ final class Pipeline
     public static function handle(MessageContext $messageContext, Handler $handler, iterable $middlewares): mixed
     {
         $middlewares = \is_array($middlewares) ? new \ArrayIterator($middlewares) : new \IteratorIterator($middlewares);
+        $middlewares->rewind();
 
         return (new self($messageContext, $handler, $middlewares))->continue();
     }
