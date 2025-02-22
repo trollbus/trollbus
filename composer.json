@@ -21,6 +21,7 @@
         "composer-unused": "./tools/composer-unused/vendor/bin/composer-unused",
         "deptrack": "./tools/deptrac/vendor/bin/deptrac --cache-file var/.deptrac.cache analyse",
         "checks": [
+            "@composer validate --strict --no-check-publish",
             "@cs-check",
             "@psalm --no-cache",
             "@deptrack --no-cache",
