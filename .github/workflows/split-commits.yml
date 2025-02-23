@@ -1,0 +1,26 @@
+name: Split commits
+
+on:
+  push:
+    branches: ['master', '*.x']
+
+concurrency:
+  group: split
+
+jobs:
+  split:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        package:
+          - { namespace: Message, repo: message }
+          - { namespace: MessageBus, repo: message-bus }
+          - { namespace: DoctrineORMBridge, repo: doctrine-orm-bridge }
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - run: |
+          REPO_URL="https://${{ secrets.SPLITTER_ACCESS_TOKEN }}@github.com/trollbus/${{ matrix.package.repo }}.git"
+          git subtree push --prefix src/${{ matrix.package.namespace }} "$REPO_URL" ${{ github.ref_name }}
