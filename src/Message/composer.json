@@ -1,0 +1,25 @@
+{
+    "name": "trollbus/message",
+    "description": "Trollbus Message Contracts",
+    "keywords": ["trollbus", "message", "bus"],
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Kenny1911",
+            "email": "o-muzyka@mail.ru"
+        }
+    ],
+    "require": {
+        "php": "8.1.* || 8.2.* || 8.3.* || 8.4.*"
+    },
+    "autoload": {
+        "psr-4": {
+            "Trollbus\\Message\\": "./"
+        }
+    },
+    "config": {
+        "lock": false,
+        "vendor-dir": "./../../var/Message/vendor"
+    }
+}

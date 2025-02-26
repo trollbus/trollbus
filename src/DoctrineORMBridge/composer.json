@@ -1,0 +1,42 @@
+{
+    "name": "trollbus/doctrine-orm-bridge",
+    "description": "Doctrine ORM Bridge for Trollbus",
+    "keywords": ["trollbus", "message", "bus", "cqrs", "command", "query", "event", "doctrine", "orm", "bridge", "entity"],
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Kenny1911",
+            "email": "o-muzyka@mail.ru"
+        }
+    ],
+    "require": {
+        "php": "8.1.* || 8.2.* || 8.3.* || 8.4.*",
+        "trollbus/message": "self.version",
+        "trollbus/message-bus": "self.version",
+        "doctrine/orm": "^2.20 || ^3.0",
+        "doctrine/persistence": " ^2.4 || ^3 || ^4"
+    },
+    "autoload": {
+        "psr-4": {
+            "Trollbus\\DoctrineORMBridge\\": "./"
+        }
+    },
+    "config": {
+        "lock": false,
+        "vendor-dir": "./../../var/DoctrineORMBridge/vendor"
+    },
+    "repositories": {
+        "trollbus/message-bus": {
+            "type": "path",
+            "url": "./../MessageBus"
+        },
+        "trollbus/message": {
+            "type": "path",
+            "url": "./../Message",
+            "options": {
+                "version": "self.version"
+            }
+        }
+    }
+}
