@@ -1,8 +1,8 @@
 {
     "name": "trollbus/trollbus",
-    "description": "Simple implementation of message bus",
+    "description": "Trollbus monorepo",
     "license": "MIT",
-    "keywords": ["message bus"],
+    "keywords": ["message bus", "message", "bus", "cqrs", "command", "query", "event"],
     "authors": [
         {
             "name": "Kenny1911",
