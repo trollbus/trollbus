@@ -17,8 +17,30 @@
         "cs-fix": "./tools/php-cs-fixer/php-cs-fixer fix",
         "psalm": "./tools/psalm/vendor/bin/psalm",
         "phpunit": "phpunit",
-        "composer-require-checker": "./tools/composer-require-checker/vendor/bin/composer-require-checker check",
-        "composer-unused": "./tools/composer-unused/vendor/bin/composer-unused",
+        "composer-require-checker": [
+            "./tools/composer-require-checker/vendor/bin/composer-require-checker check",
+
+            "@composer install --working-dir ./src/Message",
+            "./tools/composer-require-checker/vendor/bin/composer-require-checker check ./src/Message/composer.json",
+
+            "@composer install --working-dir ./src/MessageBus",
+            "./tools/composer-require-checker/vendor/bin/composer-require-checker check ./src/MessageBus/composer.json",
+
+            "@composer install --working-dir ./src/DoctrineORMBridge",
+            "./tools/composer-require-checker/vendor/bin/composer-require-checker check ./src/DoctrineORMBridge/composer.json"
+        ],
+        "composer-unused": [
+            "./tools/composer-unused/vendor/bin/composer-unused",
+
+            "@composer install --working-dir ./src/Message",
+            "./tools/composer-unused/vendor/bin/composer-unused unused src/Message/composer.json",
+
+            "@composer install --working-dir ./src/MessageBus",
+            "./tools/composer-unused/vendor/bin/composer-unused unused src/MessageBus/composer.json",
+
+            "@composer install --working-dir ./src/DoctrineORMBridge",
+            "./tools/composer-unused/vendor/bin/composer-unused unused src/DoctrineORMBridge/composer.json"
+        ],
         "deptrack": "./tools/deptrac/vendor/bin/deptrac --cache-file var/.deptrac.cache analyse",
         "checks": [
             "@composer validate --strict --no-check-publish",
