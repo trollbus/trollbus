@@ -67,6 +67,12 @@ final class TrollbusBundle extends AbstractBundle
     protected string $extensionAlias = 'trollbus';
 
     #[\Override]
+    public function build(ContainerBuilder $container): void
+    {
+        $container->addCompilerPass(new HandlerRegistryPass('trollbus'));
+    }
+
+    #[\Override]
     public function configure(DefinitionConfigurator $definition): void
     {
         $config = $definition->rootNode()->children();
@@ -95,8 +101,6 @@ final class TrollbusBundle extends AbstractBundle
         $this->loadTransaction($config, $services);
         $this->loadEntityHandler($config, $services);
 
-        $builder->addCompilerPass(new HandlerRegistryPass('trollbus'));
-
         $container
             ->services()
             ->set(MessageBus::class)
@@ -104,7 +108,8 @@ final class TrollbusBundle extends AbstractBundle
                     service('trollbus.handler_registry'),
                     tagged_iterator('trollbus.middleware'),
                 ])
-            ->alias('trollbus', MessageBus::class);
+            ->alias('trollbus', MessageBus::class)
+                ->public();
     }
 
     private function configureCreatedAt(NodeBuilder $config): void
@@ -112,10 +117,8 @@ final class TrollbusBundle extends AbstractBundle
         $config
             ->arrayNode('created_at')
                 ->canBeDisabled()
-
                 ->children()
-                    ->stringNode('clock')
-                        ->cannotBeEmpty()
+                    ->scalarNode('clock')
                         ->defaultNull();
     }
 
@@ -142,8 +145,7 @@ final class TrollbusBundle extends AbstractBundle
             ->arrayNode('logger')
                 ->canBeEnabled()
                 ->children()
-                    ->stringNode('logger')
-                        ->cannotBeEmpty()
+                    ->scalarNode('logger')
                         ->defaultValue('logger');
     }
 
@@ -170,8 +172,7 @@ final class TrollbusBundle extends AbstractBundle
             ->arrayNode('message_id')
                 ->canBeDisabled()
                 ->children()
-                    ->stringNode('generator')
-                        ->cannotBeEmpty()
+                    ->scalarNode('generator')
                         ->defaultNull();
     }
 
@@ -211,8 +212,7 @@ final class TrollbusBundle extends AbstractBundle
             ->arrayNode('transaction')
             ->canBeEnabled()
                 ->children()
-                    ->stringNode('transaction_provider')
-                        ->cannotBeEmpty()
+                    ->scalarNode('transaction_provider')
                         ->defaultNull();
     }
 
@@ -243,16 +243,13 @@ final class TrollbusBundle extends AbstractBundle
             ->arrayNode('entity_handler')
             ->canBeEnabled()
             ->children()
-                ->stringNode('entity_finder')
-                    ->cannotBeEmpty()
+                ->scalarNode('entity_finder')
                     ->defaultNull()
                     ->end()
-                ->stringNode('entity_saver')
-                    ->cannotBeEmpty()
+                ->scalarNode('entity_saver')
                     ->defaultNull()
                     ->end()
-                ->stringNode('criteria_resolver')
-                    ->cannotBeEmpty()
+                ->scalarNode('criteria_resolver')
                     ->defaultNull();
     }
 
@@ -291,12 +288,11 @@ final class TrollbusBundle extends AbstractBundle
             ->arrayNode('doctrine_orm_bridge')
                 ->canBeEnabled()
                 ->children()
-                    ->stringNode('manager_registry')
+                    ->scalarNode('manager_registry')
                         ->cannotBeEmpty()
                         ->defaultValue('doctrine')
                         ->end()
-                    ->stringNode('manager')
-                        ->cannotBeEmpty()
+                    ->scalarNode('manager')
                         ->defaultNull()
                         ->end()
                     ->booleanNode('entity_saver_flush')

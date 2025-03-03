@@ -36,6 +36,7 @@ final class HandlerRegistryPass implements CompilerPassInterface
         foreach ($this->getMessageToHandlerIdsMap($container, $this->prefix . '.handler') as $message => $ids) {
             if (1 === \count($ids)) {
                 $messageToHandlerMap[$message] = new Reference($ids[0]);
+                continue;
             }
 
             if (!is_subclass_of($message, Event::class)) {
@@ -70,14 +71,15 @@ final class HandlerRegistryPass implements CompilerPassInterface
                 continue;
             }
 
-            foreach ($definition->getTags() as $tag) {
-                $messageClass = $tag['message']
+            /** @var array $tag */
+            foreach ($definition->getTag($handlerTag) as $tag) {
+                $messageClass = (string) ($tag['message']
                     ?? throw new LogicException(\sprintf(
                         'Service "%s" tagged by "%s" requires tag attribute "%s".',
                         $id,
                         $handlerTag,
                         'message',
-                    ));
+                    )));
 
                 $messageClass = self::getFqcn($messageClass);
 
@@ -94,8 +96,9 @@ final class HandlerRegistryPass implements CompilerPassInterface
                 $messageToHandlerIdsMap[$messageClass][] = $id;
                 $messageToHandlerIdsMap[$messageClass] = array_unique($messageToHandlerIdsMap[$messageClass] ?? []);
             }
-
         }
+
+        return $messageToHandlerIdsMap;
     }
 
     /**
