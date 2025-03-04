@@ -12,6 +12,7 @@ use Symfony\Component\DependencyInjection\Exception\LogicException;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ServicesConfigurator;
 use Symfony\Component\HttpKernel\Bundle\AbstractBundle;
+use Trollbus\DoctrineORMBridge\DoctrineORMBridge;
 use Trollbus\DoctrineORMBridge\EntityHandler\DoctrineEntityFinder;
 use Trollbus\DoctrineORMBridge\EntityHandler\DoctrineEntitySaver;
 use Trollbus\DoctrineORMBridge\Flusher\FlusherMiddleware;
@@ -304,7 +305,7 @@ final class TrollbusBundle extends AbstractBundle
             return;
         }
 
-        if (false === InstalledVersions::isInstalled('trollbus/doctrine-orm-bridge', false)) {
+        if (false === class_exists(DoctrineORMBridge::class)) {
             throw new LogicException('Package "trollbus/doctrine-orm-bridge" is not installed.');
         }
 
