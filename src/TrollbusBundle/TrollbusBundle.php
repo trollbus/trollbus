@@ -26,6 +26,7 @@ use Trollbus\MessageBus\MessageId\MessageIdMiddleware;
 use Trollbus\MessageBus\MessageId\RandomMessageIdGenerator;
 use Trollbus\MessageBus\Transaction\WrapInTransactionMiddleware;
 use Trollbus\TrollbusBundle\DependencyInjection\CompilerPass\HandlerRegistryPass;
+use Trollbus\TrollbusBundle\DependencyInjection\TrollbusConfigurator;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\tagged_iterator;
 
@@ -41,17 +42,17 @@ use function Symfony\Component\DependencyInjection\Loader\Configurator\tagged_it
  *     },
  *     message_id: array{
  *         enabled: bool,
- *         generator: non-empty-string|null
+ *         generator: non-empty-string
  *     },
  *     transaction: array{
  *         enabled: bool,
- *         transaction_provider: non-empty-string|null
+ *         transaction_provider: non-empty-string
  *     },
  *     entity_handler: array{
  *         enabled: bool,
- *         entity_finder: non-empty-string|null,
- *         entity_saver: non-empty-string|null,
- *         criteria_resolver: non-empty-string|null
+ *         entity_finder: non-empty-string,
+ *         entity_saver: non-empty-string,
+ *         criteria_resolver: non-empty-string
  *     },
  *     doctrine_orm_bridge: array{
  *         enabled: bool,
@@ -69,7 +70,7 @@ final class TrollbusBundle extends AbstractBundle
     #[\Override]
     public function build(ContainerBuilder $container): void
     {
-        $container->addCompilerPass(new HandlerRegistryPass('trollbus'));
+        $container->addCompilerPass(new HandlerRegistryPass());
     }
 
     #[\Override]
@@ -96,19 +97,19 @@ final class TrollbusBundle extends AbstractBundle
 
         $this->loadCreatedAt($config, $services);
         $this->loadLogger($config, $services);
-        $this->loadMessageId($config, $services);
-        $this->loadDoctrineOrmBridge($config, $services);
+        $this->loadMessageId($config, $services, $builder);
         $this->loadTransaction($config, $services);
         $this->loadEntityHandler($config, $services);
+        $this->loadDoctrineOrmBridge($config, $services, $builder);
 
         $container
             ->services()
             ->set(MessageBus::class)
                 ->args([
-                    service('trollbus.handler_registry'),
-                    tagged_iterator('trollbus.middleware'),
+                    service(TrollbusConfigurator::HANDLER_REGISTRY),
+                    tagged_iterator(TrollbusConfigurator::MIDDLEWARE_TAG),
                 ])
-            ->alias('trollbus', MessageBus::class)
+            ->alias(TrollbusConfigurator::MESSAGE_BUS, MessageBus::class)
                 ->public();
     }
 
@@ -136,7 +137,7 @@ final class TrollbusBundle extends AbstractBundle
                 ->args([
                     isset($config['created_at']['clock']) ? service($config['created_at']['clock']) : null,
                 ])
-                ->tag('trollbus.middleware', ['priority' => 1000]);
+                ->tag(TrollbusConfigurator::MIDDLEWARE_TAG, ['priority' => 1000]);
     }
 
     private function configureLogger(NodeBuilder $config): void
@@ -163,7 +164,7 @@ final class TrollbusBundle extends AbstractBundle
                 ->args([
                     service($config['logger']['logger']),
                 ])
-                ->tag('trollbus.middleware', ['priority' => 900]);
+                ->tag(TrollbusConfigurator::MIDDLEWARE_TAG, ['priority' => 900]);
     }
 
     private function configureMessageId(NodeBuilder $config): void
@@ -173,37 +174,36 @@ final class TrollbusBundle extends AbstractBundle
                 ->canBeDisabled()
                 ->children()
                     ->scalarNode('generator')
-                        ->defaultNull();
+                        ->defaultValue(TrollbusConfigurator::DEFAULT_MESSAGE_ID_GENERATOR);
     }
 
     /**
      * @psalm-param Config $config
      */
-    private function loadMessageId(array $config, ServicesConfigurator $services): void
+    private function loadMessageId(array $config, ServicesConfigurator $services, ContainerBuilder $builder): void
     {
         if (false === $config['message_id']['enabled']) {
             return;
         }
 
-        if (null === $config['message_id']['generator']) {
-            $services->set(RandomMessageIdGenerator::class);
-            $generator = service(RandomMessageIdGenerator::class);
-        } else {
-            $generator = service($config['message_id']['generator']);
+        $services->set(RandomMessageIdGenerator::class);
+
+        if (!$builder->has(TrollbusConfigurator::DEFAULT_MESSAGE_ID_GENERATOR)) {
+            $services->alias(TrollbusConfigurator::DEFAULT_MESSAGE_ID_GENERATOR, RandomMessageIdGenerator::class);
         }
 
         $services
             ->set(MessageIdMiddleware::class)
                 ->args([
-                    $generator,
+                    service($config['message_id']['generator']),
                 ])
-                ->tag('trollbus.middleware', ['priority' => 810])
+                ->tag(TrollbusConfigurator::MIDDLEWARE_TAG, ['priority' => 810])
 
             ->set(CorrelationIdMiddleware::class)
-                ->tag('trollbus.middleware', ['priority' => 800])
+                ->tag(TrollbusConfigurator::MIDDLEWARE_TAG, ['priority' => 800])
 
             ->set(CausationIdMiddleware::class)
-                ->tag('trollbus.middleware', ['priority' => 800]);
+                ->tag(TrollbusConfigurator::MIDDLEWARE_TAG, ['priority' => 800]);
     }
 
     private function configureTransaction(NodeBuilder $config): void
@@ -213,7 +213,7 @@ final class TrollbusBundle extends AbstractBundle
             ->canBeEnabled()
                 ->children()
                     ->scalarNode('transaction_provider')
-                        ->defaultNull();
+                        ->defaultValue(TrollbusConfigurator::DEFAULT_TRANSACTION_PROVIDER);
     }
 
     /**
@@ -225,16 +225,12 @@ final class TrollbusBundle extends AbstractBundle
             return;
         }
 
-        if (null === $config['transaction']['transaction_provider']) {
-            throw new LogicException('Transaction provider not defined. Please, define config "trollbus.transaction.transaction_provider".');
-        }
-
         $services
             ->set(WrapInTransactionMiddleware::class)
                 ->args([
                     service($config['transaction']['transaction_provider']),
                 ])
-                ->tag('trollbus.middleware', ['priority' => 700]);
+                ->tag(TrollbusConfigurator::MIDDLEWARE_TAG, ['priority' => 700]);
     }
 
     private function configureEntityHandler(NodeBuilder $config): void
@@ -244,13 +240,13 @@ final class TrollbusBundle extends AbstractBundle
             ->canBeEnabled()
             ->children()
                 ->scalarNode('entity_finder')
-                    ->defaultNull()
+                    ->defaultValue(TrollbusConfigurator::DEFAULT_ENTITY_FINDER)
                     ->end()
                 ->scalarNode('entity_saver')
-                    ->defaultNull()
+                    ->defaultValue(TrollbusConfigurator::DEFAULT_ENTITY_SAVER)
                     ->end()
                 ->scalarNode('criteria_resolver')
-                    ->defaultNull();
+                    ->defaultValue(TrollbusConfigurator::DEFAULT_CRITERIA_RESOLVER);
     }
 
     /**
@@ -262,24 +258,21 @@ final class TrollbusBundle extends AbstractBundle
             return;
         }
 
-        if (null === $config['entity_handler']['entity_finder']) {
-            throw new LogicException('Entity finder not defined. Please, define config "trollbus.entity_handler.entity_finder".');
+        if (TrollbusConfigurator::DEFAULT_ENTITY_FINDER !== $config['entity_handler']['entity_finder']) {
+            $services->alias(TrollbusConfigurator::DEFAULT_ENTITY_FINDER, $config['entity_handler']['entity_finder']);
         }
 
-        $services->alias('trollbus.entity_handler.default_entity_finder', $config['entity_handler']['entity_finder']);
-
-        if (null === $config['entity_handler']['entity_saver']) {
-            throw new LogicException('Entity saver not defined. Please, define config "trollbus.entity_handler.entity_saver".');
+        if (TrollbusConfigurator::DEFAULT_ENTITY_SAVER !== $config['entity_handler']['entity_saver']) {
+            $services->alias(TrollbusConfigurator::DEFAULT_ENTITY_SAVER, $config['entity_handler']['entity_saver']);
         }
 
-        $services->alias('trollbus.entity_handler.default_entity_saver', $config['entity_handler']['entity_saver']);
+        $services->set(PropertyCriteriaResolver::class);
 
-        if (null === $config['entity_handler']['criteria_resolver']) {
-            $services->set(PropertyCriteriaResolver::class);
-            $config['entity_handler']['criteria_resolver'] = PropertyCriteriaResolver::class;
+        if (TrollbusConfigurator::DEFAULT_CRITERIA_RESOLVER === $config['entity_handler']['criteria_resolver']) {
+            $services->alias(TrollbusConfigurator::DEFAULT_CRITERIA_RESOLVER, PropertyCriteriaResolver::class);
+        } else {
+            $services->alias(TrollbusConfigurator::DEFAULT_CRITERIA_RESOLVER, $config['entity_handler']['criteria_resolver']);
         }
-
-        $services->alias('trollbus.entity_handler.default_criteria_resolver', $config['entity_handler']['criteria_resolver']);
     }
 
     private function configureDoctrineOrmBridge(NodeBuilder $config): void
@@ -305,7 +298,7 @@ final class TrollbusBundle extends AbstractBundle
     /**
      * @psalm-param Config $config
      */
-    private function loadDoctrineOrmBridge(array &$config, ServicesConfigurator $services): void
+    private function loadDoctrineOrmBridge(array &$config, ServicesConfigurator $services, ContainerBuilder $builder): void
     {
         if (false === $config['doctrine_orm_bridge']['enabled']) {
             return;
@@ -315,33 +308,32 @@ final class TrollbusBundle extends AbstractBundle
             throw new LogicException('Package "trollbus/doctrine-orm-bridge" is not installed.');
         }
 
-        if ($config['transaction']['enabled'] && null === $config['transaction']['transaction_provider']) {
-            $services
-                ->set(DoctrineTransactionProvider::class)
-                    ->args([
-                        service($config['doctrine_orm_bridge']['manager_registry']),
-                        $config['doctrine_orm_bridge']['manager'],
-                    ]);
-            $config['transaction']['transaction_provider'] = DoctrineTransactionProvider::class;
+        $services
+            ->set(DoctrineTransactionProvider::class)
+                ->args([
+                    service($config['doctrine_orm_bridge']['manager_registry']),
+                    $config['doctrine_orm_bridge']['manager'],
+                ])
+            ->set(DoctrineEntityFinder::class)
+                ->args([
+                    service($config['doctrine_orm_bridge']['manager_registry']),
+                ])
+            ->set(DoctrineEntitySaver::class)
+                ->args([
+                    service($config['doctrine_orm_bridge']['manager_registry']),
+                    $config['doctrine_orm_bridge']['entity_saver_flush'],
+                ]);
+
+        if (!$builder->has(TrollbusConfigurator::DEFAULT_TRANSACTION_PROVIDER)) {
+            $services->alias(TrollbusConfigurator::DEFAULT_TRANSACTION_PROVIDER, DoctrineTransactionProvider::class);
         }
 
-        if ($config['entity_handler']['enabled']) {
-            if (null === $config['entity_handler']['entity_finder']) {
-                $services->set(DoctrineEntityFinder::class)
-                    ->args([
-                        service($config['doctrine_orm_bridge']['manager_registry']),
-                    ]);
-                $config['entity_handler']['entity_finder'] = DoctrineEntityFinder::class;
-            }
+        if (!$builder->has(TrollbusConfigurator::DEFAULT_ENTITY_FINDER)) {
+            $services->alias(TrollbusConfigurator::DEFAULT_ENTITY_FINDER, DoctrineTransactionProvider::class);
+        }
 
-            if (null === $config['entity_handler']['entity_saver']) {
-                $services->set(DoctrineEntitySaver::class)
-                    ->args([
-                        service($config['doctrine_orm_bridge']['manager_registry']),
-                        $config['doctrine_orm_bridge']['entity_saver_flush'],
-                    ]);
-                $config['entity_handler']['entity_saver'] = DoctrineEntitySaver::class;
-            }
+        if (!$builder->has(TrollbusConfigurator::DEFAULT_ENTITY_SAVER)) {
+            $services->alias(TrollbusConfigurator::DEFAULT_ENTITY_SAVER, DoctrineEntitySaver::class);
         }
 
         if ($config['doctrine_orm_bridge']['flusher']) {
