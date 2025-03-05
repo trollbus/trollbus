@@ -42,6 +42,7 @@ use Trollbus\Tests\MessageBus\MessageBusTestCases\NoHandler\NoHandlerEvent;
 use Trollbus\Tests\MessageBus\MessageBusTestCases\NoHandler\NoHandlerMessage;
 use Trollbus\Tests\MessageBus\MessageBusTestCases\SimpleMessage\SimpleMessage;
 use Trollbus\Tests\MessageBus\MessageBusTestCases\SimpleMessage\SimpleMessageHandler;
+use Trollbus\Tests\MessageBus\MessageBusTestCases\SimpleMessage\SimpleMessageManager;
 use Trollbus\Tests\MessageBus\MessageBusTestCases\SimpleMessage\SimpleMessageResult;
 use Trollbus\Tests\MessageBus\MessageBusTestCases\SimpleMessage\SimpleMessageStamp;
 use Trollbus\Tests\MessageBus\MessageContextStack\MessageContextStack;
@@ -208,7 +209,7 @@ final class MessageBusTest extends TestCase
                     SimpleMessage::class,
                     new CallableHandler(
                         id: 'callable handler',
-                        handler: static fn(SimpleMessage $m) => new SimpleMessageResult(foo: $m->foo, bar: $m->bar),
+                        handler: [new SimpleMessageManager(), 'handleMessage'],
                     ),
                 ),
         );
@@ -230,7 +231,7 @@ final class MessageBusTest extends TestCase
                     new HandlerWithMiddlewares(
                         inner: new CallableHandler(
                             id: 'callable handler with middleware',
-                            handler: static fn(SimpleMessage $m) => new SimpleMessageResult(foo: $m->foo, bar: $m->bar),
+                            handler: [new SimpleMessageManager(), 'handleMessage'],
                         ),
                         middlewares: [
                             new HandlerMiddleware(),
