@@ -40,6 +40,7 @@ final class HandlerRegistryPass implements CompilerPassInterface
 
             $id = MessageBusConfigurator::nextHandlerService();
             $container->setDefinition($id, new Definition(EventHandler::class, [array_map(static fn($handlerId) => new Reference($handlerId), $ids)]));
+            $messageToHandlerMap[$message] = new Reference($id);
         }
 
         $container->setDefinition(
