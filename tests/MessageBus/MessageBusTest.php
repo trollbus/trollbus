@@ -6,8 +6,6 @@ namespace Trollbus\Tests\MessageBus;
 
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LogLevel;
-use Trollbus\Message\Message;
-use Trollbus\MessageBus\CreatedAt\CreatedAt;
 use Trollbus\MessageBus\CreatedAt\CreatedAtMiddleware;
 use Trollbus\MessageBus\EntityHandler\EntityHandler;
 use Trollbus\MessageBus\EntityHandler\EntityNotFound;
@@ -20,16 +18,12 @@ use Trollbus\MessageBus\HandlerRegistry\ClassStringMapHandlerRegistry;
 use Trollbus\MessageBus\HandlerRegistry\HandlerNotFound;
 use Trollbus\MessageBus\Logging\LogMiddleware;
 use Trollbus\MessageBus\MessageBus;
-use Trollbus\MessageBus\MessageId\CausationId;
 use Trollbus\MessageBus\MessageId\CausationIdMiddleware;
-use Trollbus\MessageBus\MessageId\CorrelationId;
 use Trollbus\MessageBus\MessageId\CorrelationIdMiddleware;
 use Trollbus\MessageBus\MessageId\MessageIdMiddleware;
 use Trollbus\MessageBus\MessageId\MessageIdNotSet;
 use Trollbus\MessageBus\Middleware\HandlerWithMiddlewares;
-use Trollbus\MessageBus\ReadonlyMessageContext;
 use Trollbus\MessageBus\Transaction\FakeTransactionProvider;
-use Trollbus\MessageBus\Transaction\InTransaction;
 use Trollbus\MessageBus\Transaction\WrapInTransactionMiddleware;
 use Trollbus\Tests\MessageBus\MessageBusTestCases\EntityHandler\EditEntity;
 use Trollbus\Tests\MessageBus\MessageBusTestCases\EntityHandler\Entity;
@@ -58,6 +52,8 @@ use Trollbus\Tests\Psr\Log\InMemoryLogger;
 
 final class MessageBusTest extends TestCase
 {
+    use MessageBusAssert;
+
     private FakeClock $clock;
 
     private SequenceMessageIdGenerator $messageIdGenerator;
@@ -108,7 +104,7 @@ final class MessageBusTest extends TestCase
             correlationId: '1',
             causationId: null,
         );
-        $this->assertLogLevels([LogLevel::INFO, LogLevel::INFO]);
+        self::assertLogLevels([LogLevel::INFO, LogLevel::INFO], $this->logger);
 
         self::assertFalse($messageContexts[0]->hasStamp(SimpleMessageStamp::class));
         self::assertNull($messageContexts[0]->getStamp(SimpleMessageStamp::class));
@@ -148,7 +144,7 @@ final class MessageBusTest extends TestCase
             correlationId: '1',
             causationId: null,
         );
-        $this->assertLogLevels([LogLevel::INFO, LogLevel::INFO]);
+        self::assertLogLevels([LogLevel::INFO, LogLevel::INFO], $this->logger);
 
         self::assertTrue($messageContexts[0]->hasStamp(SimpleMessageStamp::class));
         self::assertSame($stamp, $messageContexts[0]->getStamp(SimpleMessageStamp::class));
@@ -197,7 +193,10 @@ final class MessageBusTest extends TestCase
             correlationId: '1',
             causationId: '2',
         );
-        $this->assertLogLevels([LogLevel::INFO, LogLevel::INFO, LogLevel::INFO, LogLevel::INFO, LogLevel::INFO, LogLevel::INFO]);
+        self::assertLogLevels(
+            [LogLevel::INFO, LogLevel::INFO, LogLevel::INFO, LogLevel::INFO, LogLevel::INFO, LogLevel::INFO],
+            $this->logger,
+        );
     }
 
     public function testCallableHandler(): void
@@ -250,7 +249,7 @@ final class MessageBusTest extends TestCase
 
         self::assertCount(1, $messageContexts);
 
-        $this->assertTrue($messageContexts[0]->hasStamp(HandlerMiddlewareStamp::class));
+        self::assertTrue($messageContexts[0]->hasStamp(HandlerMiddlewareStamp::class));
     }
 
     public function testEventHandler(): void
@@ -454,39 +453,5 @@ final class MessageBusTest extends TestCase
                 new MessageContextStackMiddleware($this->messageContextStack),
             ],
         );
-    }
-
-    /**
-     * @param class-string<Message> $messageClass
-     * @param non-empty-string $messageId
-     * @param non-empty-string $correlationId
-     * @param non-empty-string $causationId
-     *
-     * @throws MessageIdNotSet
-     */
-    private static function assertMessageContext(
-        ReadonlyMessageContext $messageContext,
-        string $messageClass,
-        \DateTimeImmutable $createdAt,
-        string $messageId,
-        string $correlationId,
-        ?string $causationId,
-    ): void {
-        self::assertSame($messageClass, $messageContext->getMessageClass());
-        self::assertSame($messageId, $messageContext->getMessageId());
-        self::assertSame($correlationId, $messageContext->getStamp(CorrelationId::class)?->correlationId);
-        self::assertSame($causationId, $messageContext->getStamp(CausationId::class)?->causationId);
-        self::assertTrue($messageContext->hasAttribute(InTransaction::class));
-        self::assertEquals($createdAt, $messageContext->getStamp(CreatedAt::class)?->createdAt);
-    }
-
-    /**
-     * @param list<LogLevel::*> $logLevels
-     */
-    private function assertLogLevels(array $logLevels): void
-    {
-        $actualLogLevels = array_map(static fn(array $log): string => $log[0], $this->logger->getLogs());
-
-        self::assertSame($logLevels, $actualLogLevels);
     }
 }
