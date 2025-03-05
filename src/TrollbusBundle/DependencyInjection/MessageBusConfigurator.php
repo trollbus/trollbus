@@ -10,7 +10,7 @@ use Trollbus\MessageBus\EntityHandler\EntityHandler;
 use Trollbus\MessageBus\Handler\CallableHandler;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
 
-final class TrollbusConfigurator
+final class MessageBusConfigurator
 {
     public const MESSAGE_BUS = 'trollbus';
     public const HANDLER_REGISTRY = 'trollbus.handler_registry';

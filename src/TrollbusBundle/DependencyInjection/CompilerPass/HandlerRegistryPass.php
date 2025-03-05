@@ -14,7 +14,7 @@ use Symfony\Component\DependencyInjection\Reference;
 use Trollbus\Message\Event;
 use Trollbus\Message\Message;
 use Trollbus\MessageBus\Handler\EventHandler;
-use Trollbus\TrollbusBundle\DependencyInjection\TrollbusConfigurator;
+use Trollbus\TrollbusBundle\DependencyInjection\MessageBusConfigurator;
 use Trollbus\TrollbusBundle\HandlerRegistry\ContainerHandlerRegistry;
 
 final class HandlerRegistryPass implements CompilerPassInterface
@@ -38,12 +38,12 @@ final class HandlerRegistryPass implements CompilerPassInterface
                 throw new LogicException(\sprintf('Non-event message %s must have 1 handler, got %s', $message, \count($ids)));
             }
 
-            $id = TrollbusConfigurator::serviceId($message);
+            $id = MessageBusConfigurator::serviceId($message);
             $container->setDefinition($id, new Definition(EventHandler::class, [array_map(static fn($handlerId) => new Reference($handlerId), $ids)]));
         }
 
         $container->setDefinition(
-            TrollbusConfigurator::HANDLER_REGISTRY,
+            MessageBusConfigurator::HANDLER_REGISTRY,
             new Definition(
                 ContainerHandlerRegistry::class,
                 [
@@ -58,7 +58,7 @@ final class HandlerRegistryPass implements CompilerPassInterface
      */
     private function getMessageToHandlerIdsMap(ContainerBuilder $container): array
     {
-        $handlerTag = TrollbusConfigurator::HANDLER_TAG;
+        $handlerTag = MessageBusConfigurator::HANDLER_TAG;
 
         /** @var array<class-string<Message>, non-empty-string> $messageToHandlerIdsMap */
         $messageToHandlerIdsMap = [];
@@ -70,12 +70,12 @@ final class HandlerRegistryPass implements CompilerPassInterface
 
             /** @var array $tag */
             foreach ($definition->getTag($handlerTag) as $tag) {
-                $messageClass = (string) ($tag[TrollbusConfigurator::HANDLER_TAG_MESSAGE]
+                $messageClass = (string) ($tag[MessageBusConfigurator::HANDLER_TAG_MESSAGE]
                     ?? throw new LogicException(\sprintf(
                         'Service "%s" tagged by "%s" requires tag attribute "%s".',
                         $id,
                         $handlerTag,
-                        TrollbusConfigurator::HANDLER_TAG_MESSAGE,
+                        MessageBusConfigurator::HANDLER_TAG_MESSAGE,
                     )));
 
                 $messageClass = self::getFqcn($messageClass);
@@ -86,7 +86,7 @@ final class HandlerRegistryPass implements CompilerPassInterface
                         $id,
                         $handlerTag,
                         $messageClass,
-                        TrollbusConfigurator::HANDLER_TAG_MESSAGE,
+                        MessageBusConfigurator::HANDLER_TAG_MESSAGE,
                     ));
                 }
 
