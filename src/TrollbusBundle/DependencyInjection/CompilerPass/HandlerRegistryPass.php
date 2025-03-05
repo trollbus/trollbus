@@ -38,7 +38,7 @@ final class HandlerRegistryPass implements CompilerPassInterface
                 throw new LogicException(\sprintf('Non-event message %s must have 1 handler, got %s', $message, \count($ids)));
             }
 
-            $id = MessageBusConfigurator::serviceId($message);
+            $id = MessageBusConfigurator::nextHandlerService();
             $container->setDefinition($id, new Definition(EventHandler::class, [array_map(static fn($handlerId) => new Reference($handlerId), $ids)]));
         }
 

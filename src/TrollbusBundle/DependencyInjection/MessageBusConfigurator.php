@@ -8,6 +8,7 @@ use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigura
 use Trollbus\Message\Message;
 use Trollbus\MessageBus\EntityHandler\EntityHandler;
 use Trollbus\MessageBus\Handler\CallableHandler;
+use Trollbus\MessageBus\Middleware\HandlerWithMiddlewares;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
 
 final class MessageBusConfigurator
@@ -16,6 +17,7 @@ final class MessageBusConfigurator
     public const HANDLER_REGISTRY = 'trollbus.handler_registry';
     public const HANDLER_TAG = 'trollbus.handler';
     public const HANDLER_TAG_MESSAGE = 'message';
+    public const HANDLER_TAG_MIDDLEWARES = 'middlewares';
     public const MIDDLEWARE_TAG = 'trollbus.middleware';
     public const DEFAULT_MESSAGE_ID_GENERATOR = 'trollbus.message_id.default_generator';
     public const DEFAULT_TRANSACTION_PROVIDER = 'trollbus.transaction.default_transaction_provider';
@@ -29,16 +31,33 @@ final class MessageBusConfigurator
         private readonly ContainerConfigurator $di,
     ) {}
 
+    public static function create(ContainerConfigurator $di): self
+    {
+        return new self($di);
+    }
+
     /**
      * @param class-string<Message> $message
      * @param non-empty-string $service
+     * @param list<non-empty-string> $middlewares
      */
-    public function handler(string $message, string $service): self
+    public function handler(string $message, string $service, array $middlewares = []): self
     {
+        if (\count($middlewares) > 0) {
+            $this->di
+                ->services()
+                ->set(self::nextHandlerService(), HandlerWithMiddlewares::class)
+                    ->decorate($service)
+                    ->args([
+                        service('.inner'),
+                        array_map(static fn(string $m) => service($m), $middlewares),
+                    ]);
+        }
+
         $this->di
             ->services()
             ->get($service)
-            ->tag(self::HANDLER_TAG, [self::HANDLER_TAG_MESSAGE => $message]);
+                ->tag(self::HANDLER_TAG, [self::HANDLER_TAG_MESSAGE => $message]);
 
         return $this;
     }
@@ -47,25 +66,31 @@ final class MessageBusConfigurator
      * @param class-string<Message> $message
      * @param non-empty-string $service
      * @param non-empty-string|null $handlerId
+     * @param list<non-empty-string> $middlewares
      */
-    public function callableHandler(string $message, string $service, string $method = '__invoke', ?string $handlerId = null): self
-    {
-        $serviceId = self::serviceId($message);
+    public function callableHandler(
+        string $message,
+        string $service,
+        string $method = '__invoke',
+        ?string $handlerId = null,
+        array $middlewares = [],
+    ): self {
+        $handlerService = self::nextHandlerService();
         $this->di
             ->services()
-            ->set($serviceId, CallableHandler::class)
+            ->set($handlerService, CallableHandler::class)
                 ->args([
-                    $handlerId ?? $serviceId,
+                    $handlerId ?? $handlerService,
                     [service($service), $method],
-                ])
-                ->tag(self::HANDLER_TAG, [self::HANDLER_TAG_MESSAGE => $message]);
+                ]);
 
-        return $this;
+        return $this->handler($message, $handlerService, $middlewares);
     }
 
     /**
      * @param class-string<Message> $message
      * @param non-empty-array<non-empty-string, non-empty-string> $findBy
+     * @param list<non-empty-string> $middlewares
      */
     public function entityHandler(
         string $message,
@@ -77,13 +102,14 @@ final class MessageBusConfigurator
         string $entitySaver = 'trollbus.entity_handler.default_entity_saver',
         string $criteriaResolver = 'trollbus.entity_handler.default_criteria_resolver',
         ?string $handlerId = null,
+        array $middlewares = [],
     ): self {
-        $serviceId = self::serviceId($message);
+        $handlerService = self::nextHandlerService();
         $this->di
             ->services()
-            ->set($serviceId, EntityHandler::class)
+            ->set($handlerService, EntityHandler::class)
                 ->args([
-                    $handlerId ?? $serviceId,
+                    $handlerId ?? $handlerService,
                     service($entityFinder),
                     service($criteriaResolver),
                     service($entitySaver),
@@ -91,20 +117,30 @@ final class MessageBusConfigurator
                     $handlerMethod,
                     $findBy,
                     $factoryMethod,
-                ])
-                ->tag(self::HANDLER_TAG, [self::HANDLER_TAG_MESSAGE => $message]);
+                ]);
+
+        return $this->handler($message, $handlerService, $middlewares);
+    }
+
+    /**
+     * @param non-empty-string $service
+     */
+    public function middleware(string $service, int $priority = 0): self
+    {
+        $this->di
+            ->services()
+            ->get($service)
+                ->tag(self::MIDDLEWARE_TAG, ['priority' => $priority]);
 
         return $this;
     }
 
     /**
-     * @param class-string<Message> $message
-     *
      * @return non-empty-string
      */
-    public static function serviceId(string $message): string
+    public static function nextHandlerService(): string
     {
-        $serviceId = \sprintf('trollbus.handler.%s.%s', $message, self::$counter);
+        $serviceId = \sprintf('trollbus.handler.%s', self::$counter);
         ++self::$counter;
 
         return $serviceId;
