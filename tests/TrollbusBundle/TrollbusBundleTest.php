@@ -14,7 +14,16 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Exception\LogicException;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symfony\Component\DependencyInjection\Loader\PhpFileLoader;
+use Trollbus\DoctrineORMBridge\Flusher\Flushed;
+use Trollbus\MessageBus\CreatedAt\CreatedAt;
 use Trollbus\MessageBus\MessageBus;
+use Trollbus\MessageBus\MessageId\CausationId;
+use Trollbus\MessageBus\MessageId\CorrelationId;
+use Trollbus\MessageBus\MessageId\MessageId;
+use Trollbus\MessageBus\MessageId\MessageIdNotSet;
+use Trollbus\MessageBus\Transaction\InTransaction;
+use Trollbus\Tests\DoctrineORMBridge\EntityHandler\EditEntity;
+use Trollbus\Tests\DoctrineORMBridge\EntityHandler\Entity;
 use Trollbus\Tests\DoctrineORMBridge\ManagerRegistry;
 use Trollbus\Tests\MessageBus\MessageBusAssert;
 use Trollbus\Tests\MessageBus\MessageBusTestCases\EventHandler\SomeEvent;
@@ -42,6 +51,7 @@ final class TrollbusBundleTest extends TestCase
     /**
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
+     * @throws MessageIdNotSet
      */
     public function testConfigureHandler(): void
     {
@@ -77,9 +87,77 @@ final class TrollbusBundleTest extends TestCase
             correlationId: '1',
             causationId: null,
         );
+        self::assertTrue($messageContexts[0]->hasAttribute(InTransaction::class));
+        self::assertTrue($messageContexts[0]->hasAttribute(Flushed::class));
         /** @var InMemoryLogger $logger */
         $logger = $container->get('logger');
         self::assertLogLevels([LogLevel::INFO, LogLevel::INFO], $logger);
+    }
+
+    /**
+     * @throws NotFoundExceptionInterface
+     * @throws ContainerExceptionInterface
+     */
+    public function testConfigureHandlerWithDisabledAllConfigs(): void
+    {
+        $container = $this->createContainer(static function (ContainerConfigurator $di): void {
+            $di->services()
+                ->set('logger', InMemoryLogger::class)
+                    ->public();
+
+            $di->extension('trollbus', [
+                'created_at' => [
+                    'enabled' => false,
+                ],
+                'logger' => [
+                    'enabled' => false,
+                ],
+                'message_id' => [
+                    'enabled' => false,
+                ],
+                'transaction' => [
+                    'enabled' => false,
+                ],
+                'entity_handler' => [
+                    'enabled' => false,
+                ],
+                'doctrine_orm_bridge' => [
+                    'enabled' => false,
+                ],
+            ]);
+
+            $di->services()
+                ->set(SimpleMessageHandler::class);
+
+            MessageBusConfigurator::create($di)
+                ->handler(SimpleMessage::class, SimpleMessageHandler::class);
+        });
+        /** @var MessageBus $messageBus */
+        $messageBus = $container->get('trollbus');
+
+        $result = $messageBus->dispatch(new SimpleMessage(foo: 123, bar: 456));
+
+        self::assertInstanceOf(SimpleMessageResult::class, $result);
+        self::assertSame(123, $result->foo);
+        self::assertSame(456, $result->bar);
+
+        // Assert message contexts
+        /** @var MessageContextStack $messageContextStack */
+        $messageContextStack = $container->get(MessageContextStack::class);
+        $messageContexts = $messageContextStack->pull();
+
+        self::assertCount(1, $messageContexts);
+
+        // No added stamps and attributes
+        self::assertFalse($messageContexts[0]->hasStamp(CreatedAt::class));
+        self::assertFalse($messageContexts[0]->hasStamp(MessageId::class));
+        self::assertFalse($messageContexts[0]->hasStamp(CorrelationId::class));
+        self::assertFalse($messageContexts[0]->hasStamp(CausationId::class));
+        self::assertFalse($messageContexts[0]->hasAttribute(InTransaction::class));
+        self::assertFalse($messageContexts[0]->hasAttribute(Flushed::class));
+        /** @var InMemoryLogger $logger */
+        $logger = $container->get('logger');
+        self::assertLogLevels([], $logger);
     }
 
     /**
@@ -187,11 +265,64 @@ final class TrollbusBundleTest extends TestCase
         self::assertSame([$event], $listener->getListener2Events());
     }
 
-    // todo test no event handlers
+    /**
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     */
+    public function testNoEventHandlers(): void
+    {
+        $container = $this->createContainerWithAllEnabledConfigs();
+        /** @var MessageBus $messageBus */
+        $messageBus = $container->get('trollbus');
+        $event = new SomeEvent();
+
+        $messageBus->dispatch($event);
+
+        self::assertTrue(true);
+    }
 
     // todo test entity handler
 
-    // todo test disabled configs
+    /**
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     */
+    public function testEntityHandlerFromDoctrineORMBridge(): void
+    {
+        $container = $this->createContainerWithAllEnabledConfigs(static function (ContainerConfigurator $di): void {
+            $messageBusConfigurator = MessageBusConfigurator::create($di);
+
+            $messageBusConfigurator->entityHandler(
+                message: EditEntity::class,
+                entityClass: Entity::class,
+                handlerMethod: 'editEntity',
+                findBy: ['id' => 'id'],
+                factoryMethod: 'createFromCommand',
+            );
+        });
+        /** @var MessageBus $messageBus */
+        $messageBus = $container->get('trollbus');
+        /** @var ManagerRegistry $doctrine */
+        $doctrine = $container->get('doctrine');
+        $doctrine->createSchema();
+
+        self::assertNull($doctrine->getManager()->find(Entity::class, '1'));
+
+        // First dispatch message - create entity
+        $messageBus->dispatch(new EditEntity('1', 'Title 1'));
+        $entity = $doctrine->getManager()->find(Entity::class, '1');
+        self::assertInstanceOf(Entity::class, $entity);
+        self::assertSame('1', $entity->getId());
+        self::assertSame('Title 1', $entity->getTitle());
+        $doctrine->resetManager();
+
+        // Second dispatch message - edit existing entity
+        $messageBus->dispatch(new EditEntity('1', 'Title 2'));
+        $entity = $doctrine->getManager()->find(Entity::class, '1');
+        self::assertInstanceOf(Entity::class, $entity);
+        self::assertSame('1', $entity->getId());
+        self::assertSame('Title 2', $entity->getTitle());
+    }
 
     /**
      * @param callable(ContainerConfigurator):void|null $configure
@@ -203,7 +334,7 @@ final class TrollbusBundleTest extends TestCase
             $di->services()
                 ->set('doctrine', ManagerRegistry::class)
                     ->args([
-                        __DIR__,
+                        __DIR__ . '/../DoctrineORMBridge/EntityHandler/',
                     ])
                     ->public()
                 ->set('clock', FakeClock::class)
