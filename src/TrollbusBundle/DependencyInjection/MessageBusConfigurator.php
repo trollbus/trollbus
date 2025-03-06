@@ -98,9 +98,9 @@ final class MessageBusConfigurator
         string $handlerMethod,
         array $findBy,
         ?string $factoryMethod = null,
-        string $entityFinder = 'trollbus.entity_handler.default_entity_finder',
-        string $entitySaver = 'trollbus.entity_handler.default_entity_saver',
-        string $criteriaResolver = 'trollbus.entity_handler.default_criteria_resolver',
+        string $entityFinder = self::DEFAULT_ENTITY_FINDER,
+        string $entitySaver = self::DEFAULT_ENTITY_SAVER,
+        string $criteriaResolver = self::DEFAULT_CRITERIA_RESOLVER,
         ?string $handlerId = null,
         array $middlewares = [],
     ): self {
