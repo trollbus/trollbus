@@ -330,7 +330,7 @@ final class TrollbusBundle extends AbstractBundle
         }
 
         if (!$builder->has(MessageBusConfigurator::DEFAULT_ENTITY_FINDER)) {
-            $services->alias(MessageBusConfigurator::DEFAULT_ENTITY_FINDER, DoctrineTransactionProvider::class);
+            $services->alias(MessageBusConfigurator::DEFAULT_ENTITY_FINDER, DoctrineEntityFinder::class);
         }
 
         if (!$builder->has(MessageBusConfigurator::DEFAULT_ENTITY_SAVER)) {
