@@ -73,9 +73,13 @@ final class TrollbusBundle extends AbstractBundle
         $container->addCompilerPass(new HandlerRegistryPass());
     }
 
+    /**
+     * @psalm-suppress UndefinedMethod
+     */
     #[\Override]
     public function configure(DefinitionConfigurator $definition): void
     {
+        /** @var NodeBuilder $config */
         $config = $definition->rootNode()->children();
 
         $this->configureCreatedAt($config);
@@ -113,6 +117,9 @@ final class TrollbusBundle extends AbstractBundle
                 ->public();
     }
 
+    /**
+     * @psalm-suppress UndefinedInterfaceMethod, MixedMethodCall
+     */
     private function configureCreatedAt(NodeBuilder $config): void
     {
         $config
@@ -140,6 +147,9 @@ final class TrollbusBundle extends AbstractBundle
                 ->tag(MessageBusConfigurator::MIDDLEWARE_TAG, ['priority' => 1000]);
     }
 
+    /**
+     * @psalm-suppress UndefinedInterfaceMethod, MixedMethodCall
+     */
     private function configureLogger(NodeBuilder $config): void
     {
         $config
@@ -167,6 +177,9 @@ final class TrollbusBundle extends AbstractBundle
                 ->tag(MessageBusConfigurator::MIDDLEWARE_TAG, ['priority' => 900]);
     }
 
+    /**
+     * @psalm-suppress UndefinedInterfaceMethod, MixedMethodCall
+     */
     private function configureMessageId(NodeBuilder $config): void
     {
         $config
@@ -206,6 +219,9 @@ final class TrollbusBundle extends AbstractBundle
                 ->tag(MessageBusConfigurator::MIDDLEWARE_TAG, ['priority' => 800]);
     }
 
+    /**
+     * @psalm-suppress UndefinedInterfaceMethod, MixedMethodCall
+     */
     private function configureTransaction(NodeBuilder $config): void
     {
         $config
@@ -233,6 +249,9 @@ final class TrollbusBundle extends AbstractBundle
                 ->tag(MessageBusConfigurator::MIDDLEWARE_TAG, ['priority' => 700]);
     }
 
+    /**
+     * @psalm-suppress UndefinedInterfaceMethod, MixedMethodCall
+     */
     private function configureEntityHandler(NodeBuilder $config): void
     {
         $config
@@ -275,6 +294,9 @@ final class TrollbusBundle extends AbstractBundle
         }
     }
 
+    /**
+     * @psalm-suppress UndefinedInterfaceMethod, MixedMethodCall
+     */
     private function configureDoctrineOrmBridge(NodeBuilder $config): void
     {
         $config

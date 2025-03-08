@@ -209,7 +209,7 @@ final class MessageBusTest extends TestCase
                     SimpleMessage::class,
                     new CallableHandler(
                         id: 'callable handler',
-                        handler: [new SimpleMessageManager(), 'handleMessage'],
+                        handler: (new SimpleMessageManager())->handleMessage(...),
                     ),
                 ),
         );
@@ -231,7 +231,7 @@ final class MessageBusTest extends TestCase
                     new HandlerWithMiddlewares(
                         inner: new CallableHandler(
                             id: 'callable handler with middleware',
-                            handler: [new SimpleMessageManager(), 'handleMessage'],
+                            handler: (new SimpleMessageManager())->handleMessage(...),
                         ),
                         middlewares: [
                             new HandlerMiddleware(),

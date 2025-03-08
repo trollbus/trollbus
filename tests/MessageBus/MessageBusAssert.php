@@ -13,6 +13,7 @@ use Trollbus\MessageBus\MessageId\MessageIdNotSet;
 use Trollbus\MessageBus\ReadonlyMessageContext;
 use Trollbus\MessageBus\Transaction\InTransaction;
 use Trollbus\Tests\Psr\Log\InMemoryLogger;
+use Psr\Log\LogLevel;
 
 /**
  * @psalm-require-extends TestCase

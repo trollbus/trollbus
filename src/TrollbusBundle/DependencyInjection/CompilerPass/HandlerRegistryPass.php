@@ -61,9 +61,10 @@ final class HandlerRegistryPass implements CompilerPassInterface
     {
         $handlerTag = MessageBusConfigurator::HANDLER_TAG;
 
-        /** @var array<class-string<Message>, non-empty-string> $messageToHandlerIdsMap */
+        /** @var array<class-string<Message>, list<non-empty-string>> $messageToHandlerIdsMap */
         $messageToHandlerIdsMap = [];
 
+        /** @var non-empty-string $id */
         foreach ($container->getDefinitions() as $id => $definition) {
             if (!$definition->hasTag($handlerTag)) {
                 continue;
@@ -92,7 +93,7 @@ final class HandlerRegistryPass implements CompilerPassInterface
                 }
 
                 $messageToHandlerIdsMap[$messageClass][] = $id;
-                $messageToHandlerIdsMap[$messageClass] = array_unique($messageToHandlerIdsMap[$messageClass] ?? []);
+                $messageToHandlerIdsMap[$messageClass] = array_values(array_unique($messageToHandlerIdsMap[$messageClass] ?? []));
             }
         }
 
@@ -105,6 +106,7 @@ final class HandlerRegistryPass implements CompilerPassInterface
     private static function getFqcn(string $class): string
     {
         try {
+            /** @psalm-suppress ArgumentTypeCoercion */
             return (new \ReflectionClass($class))->getName();
         } catch (\ReflectionException $e) {
             throw new LogicException($e->getMessage(), $e->getCode(), $e);

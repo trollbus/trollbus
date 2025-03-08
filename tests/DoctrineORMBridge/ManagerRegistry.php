@@ -15,7 +15,7 @@ use Doctrine\Persistence\Proxy;
 
 /**
  * @internal
- * @psalm-internal Trollbus\Tests\DoctrineORMBridge
+ * @psalm-internal Trollbus\Tests
  */
 final class ManagerRegistry extends AbstractManagerRegistry
 {
