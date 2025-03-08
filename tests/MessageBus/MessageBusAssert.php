@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Trollbus\Tests\MessageBus;
 
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LogLevel;
 use Trollbus\Message\Message;
 use Trollbus\MessageBus\CreatedAt\CreatedAt;
 use Trollbus\MessageBus\MessageId\CausationId;
@@ -13,7 +14,6 @@ use Trollbus\MessageBus\MessageId\MessageIdNotSet;
 use Trollbus\MessageBus\ReadonlyMessageContext;
 use Trollbus\MessageBus\Transaction\InTransaction;
 use Trollbus\Tests\Psr\Log\InMemoryLogger;
-use Psr\Log\LogLevel;
 
 /**
  * @psalm-require-extends TestCase
