@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Trollbus\TrollbusBundle;
 
-use Composer\InstalledVersions;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
 use Symfony\Component\Config\Definition\Configurator\DefinitionConfigurator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
