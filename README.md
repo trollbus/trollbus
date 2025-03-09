@@ -1,6 +1,6 @@
 # Trollbus
 
-`Trollbus` is another yet Flexible Message Bus implementation with middleware amd handler result support.
+`Trollbus` is another yet Flexible Message Bus implementation with middleware and handler result support.
 
 Inspired by [Telephantast](https://github.com/telephantast/telephantast). Most of the ideas were taken from there.
 
@@ -8,8 +8,10 @@ Inspired by [Telephantast](https://github.com/telephantast/telephantast). Most o
 
 - [x] Message Bus
 - [x] Doctrine ORM Bridge
-- [ ] Symfony Bundle
 - [ ] Async
   - [ ] Transactional Outbox
-- [ ] RabbitMQ Transport
-- [ ] Integration with [RoadRunner Jobs](https://docs.roadrunner.dev/docs/queues-and-jobs/overview-queues)
+  - [ ] RabbitMQ Transport
+  - [ ] Integration with [RoadRunner Jobs](https://docs.roadrunner.dev/docs/queues-and-jobs/overview-queues)
+- [x] Symfony Bundle
+  - [ ] Debug CLI Command
+  - [ ] Integrations with Symfony Profiler
