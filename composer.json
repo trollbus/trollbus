@@ -41,12 +41,12 @@
             "@composer install --working-dir ./src/DoctrineORMBridge",
             "./tools/composer-unused/vendor/bin/composer-unused unused src/DoctrineORMBridge/composer.json"
         ],
-        "deptrack": "./tools/deptrac/vendor/bin/deptrac --cache-file var/.deptrac.cache analyse",
+        "deptrac": "./tools/deptrac/vendor/bin/deptrac --cache-file var/.deptrac.cache analyse",
         "checks": [
             "@composer validate --strict --no-check-publish",
             "@cs-check",
             "@psalm --no-cache",
-            "@deptrack --no-cache",
+            "@deptrac --no-cache",
             "phpunit",
             "@composer-require-checker",
             "@composer-unused"
