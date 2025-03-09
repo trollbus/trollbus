@@ -1,0 +1,9 @@
+{
+    "symbol-whitelist": [
+        "Trollbus\\DoctrineORMBridge\\DoctrineORMBridge",
+        "Trollbus\\DoctrineORMBridge\\EntityHandler\\DoctrineEntityFinder",
+        "Trollbus\\DoctrineORMBridge\\EntityHandler\\DoctrineEntitySaver",
+        "Trollbus\\DoctrineORMBridge\\Flusher\\FlusherMiddleware",
+        "Trollbus\\DoctrineORMBridge\\Transaction\\DoctrineTransactionProvider"
+    ]
+}
