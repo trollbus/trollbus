@@ -6,8 +6,6 @@ namespace Trollbus\Tests\MessageBus;
 
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LogLevel;
-use Trollbus\Message\Message;
-use Trollbus\MessageBus\CreatedAt\CreatedAt;
 use Trollbus\MessageBus\CreatedAt\CreatedAtMiddleware;
 use Trollbus\MessageBus\EntityHandler\EntityHandler;
 use Trollbus\MessageBus\EntityHandler\EntityNotFound;
@@ -20,21 +18,20 @@ use Trollbus\MessageBus\HandlerRegistry\ClassStringMapHandlerRegistry;
 use Trollbus\MessageBus\HandlerRegistry\HandlerNotFound;
 use Trollbus\MessageBus\Logging\LogMiddleware;
 use Trollbus\MessageBus\MessageBus;
-use Trollbus\MessageBus\MessageId\CausationId;
 use Trollbus\MessageBus\MessageId\CausationIdMiddleware;
-use Trollbus\MessageBus\MessageId\CorrelationId;
 use Trollbus\MessageBus\MessageId\CorrelationIdMiddleware;
 use Trollbus\MessageBus\MessageId\MessageIdMiddleware;
 use Trollbus\MessageBus\MessageId\MessageIdNotSet;
-use Trollbus\MessageBus\ReadonlyMessageContext;
+use Trollbus\MessageBus\Middleware\HandlerWithMiddlewares;
 use Trollbus\MessageBus\Transaction\FakeTransactionProvider;
-use Trollbus\MessageBus\Transaction\InTransaction;
 use Trollbus\MessageBus\Transaction\WrapInTransactionMiddleware;
 use Trollbus\Tests\MessageBus\MessageBusTestCases\EntityHandler\EditEntity;
 use Trollbus\Tests\MessageBus\MessageBusTestCases\EntityHandler\Entity;
 use Trollbus\Tests\MessageBus\MessageBusTestCases\EntityHandler\EntityEdited;
 use Trollbus\Tests\MessageBus\MessageBusTestCases\EntityHandler\InMemoryEntityFinderAndSaver;
 use Trollbus\Tests\MessageBus\MessageBusTestCases\EventHandler\SomeEvent;
+use Trollbus\Tests\MessageBus\MessageBusTestCases\HandlerMiddleware\HandlerMiddleware;
+use Trollbus\Tests\MessageBus\MessageBusTestCases\HandlerMiddleware\HandlerMiddlewareStamp;
 use Trollbus\Tests\MessageBus\MessageBusTestCases\NestedDispatch\NestedDispatchLevel1;
 use Trollbus\Tests\MessageBus\MessageBusTestCases\NestedDispatch\NestedDispatchLevel1Handler;
 use Trollbus\Tests\MessageBus\MessageBusTestCases\NestedDispatch\NestedDispatchLevel2;
@@ -45,6 +42,7 @@ use Trollbus\Tests\MessageBus\MessageBusTestCases\NoHandler\NoHandlerEvent;
 use Trollbus\Tests\MessageBus\MessageBusTestCases\NoHandler\NoHandlerMessage;
 use Trollbus\Tests\MessageBus\MessageBusTestCases\SimpleMessage\SimpleMessage;
 use Trollbus\Tests\MessageBus\MessageBusTestCases\SimpleMessage\SimpleMessageHandler;
+use Trollbus\Tests\MessageBus\MessageBusTestCases\SimpleMessage\SimpleMessageManager;
 use Trollbus\Tests\MessageBus\MessageBusTestCases\SimpleMessage\SimpleMessageResult;
 use Trollbus\Tests\MessageBus\MessageBusTestCases\SimpleMessage\SimpleMessageStamp;
 use Trollbus\Tests\MessageBus\MessageContextStack\MessageContextStack;
@@ -211,7 +209,7 @@ final class MessageBusTest extends TestCase
                     SimpleMessage::class,
                     new CallableHandler(
                         id: 'callable handler',
-                        handler: static fn(SimpleMessage $m) => new SimpleMessageResult(foo: $m->foo, bar: $m->bar),
+                        handler: (new SimpleMessageManager())->handleMessage(...),
                     ),
                 ),
         );
@@ -221,6 +219,38 @@ final class MessageBusTest extends TestCase
 
         $handlerId = (string) ($this->logger->getLogs()[0][2]['handler_id'] ?? throw new \LogicException('No handler id.'));
         self::assertSame('callable handler', $handlerId);
+    }
+
+    public function testHandlerWithMiddleware(): void
+    {
+        $message = new SimpleMessage(foo: 123, bar: 456);
+        $messageBus = $this->createMessageBus(
+            (new ClassStringMap())
+                ->with(
+                    SimpleMessage::class,
+                    new HandlerWithMiddlewares(
+                        inner: new CallableHandler(
+                            id: 'callable handler with middleware',
+                            handler: (new SimpleMessageManager())->handleMessage(...),
+                        ),
+                        middlewares: [
+                            new HandlerMiddleware(),
+                        ],
+                    ),
+                ),
+        );
+
+        $result = $messageBus->dispatch($message);
+        self::assertEquals(new SimpleMessageResult(foo: 123, bar: 456), $result);
+
+        $handlerId = (string) ($this->logger->getLogs()[0][2]['handler_id'] ?? throw new \LogicException('No handler id.'));
+        self::assertSame('callable handler with middleware', $handlerId);
+
+        $messageContexts = $this->messageContextStack->pull();
+
+        self::assertCount(1, $messageContexts);
+
+        self::assertTrue($messageContexts[0]->hasStamp(HandlerMiddlewareStamp::class));
     }
 
     public function testEventHandler(): void
