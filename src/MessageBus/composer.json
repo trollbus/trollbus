@@ -1,6 +1,6 @@
 {
     "name": "trollbus/message-bus",
-    "description": "Trollbus is Flexible Message Bus implementation with middleware amd handler result support",
+    "description": "Trollbus is Flexible Message Bus implementation with middleware and handler result support",
     "keywords": ["trollbus", "message", "bus", "cqrs", "command", "query", "event"],
     "type": "library",
     "license": "MIT",
