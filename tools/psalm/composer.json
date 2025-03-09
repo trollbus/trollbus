@@ -1,6 +1,6 @@
 {
     "require": {
-        "vimeo/psalm": "^6.7.1",
+        "vimeo/psalm": "^6.8.8",
         "psalm/plugin-phpunit": "^0.19.2"
     }
 }
