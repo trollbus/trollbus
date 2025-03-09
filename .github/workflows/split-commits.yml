@@ -16,6 +16,7 @@ jobs:
           - { namespace: Message, repo: message }
           - { namespace: MessageBus, repo: message-bus }
           - { namespace: DoctrineORMBridge, repo: doctrine-orm-bridge }
+          - { namespace: TrollbusBundle, repo: trollbus-bundle }
     steps:
       - uses: actions/checkout@v4
         with:

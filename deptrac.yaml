@@ -30,6 +30,11 @@ deptrac:
         - type: directory
           value: '%projectDirectory%/src/DoctrineORMBridge/.*'
 
+    - name: TrollbusBundle
+      collectors:
+        - type: directory
+          value: '%projectDirectory%/src/TrollbusBundle/.*'
+
     # Tests layers
     - name: Message Tests
       collectors:
@@ -46,13 +51,42 @@ deptrac:
         - type: directory
           value: '%projectDirectory%/tests/DoctrineORMBridge/.*'
 
+    - name: TrollbusBundle Tests
+      collectors:
+        - type: directory
+          value: '%projectDirectory%/tests/TrollbusBundle/.*'
+
   ruleset:
     # Src rulesets
     Message: ~
-    MessageBus: [Message]
-    DoctrineORMBridge: [Message, MessageBus]
+    MessageBus:
+      - Message
+    DoctrineORMBridge:
+      - Message
+      - MessageBus
+    TrollbusBundle:
+      - Message
+      - MessageBus
+      - DoctrineORMBridge
 
     # Tests rulesets
-    Message Tests: [Message]
-    MessageBus Tests: [Message, MessageBus, Message Tests]
-    DoctrineORMBridge Tests: [Message, MessageBus, DoctrineORMBridge, Message Tests, MessageBus Tests]
+    Message Tests:
+      - Message
+    MessageBus Tests:
+      - Message
+      - MessageBus
+      - Message Tests
+    DoctrineORMBridge Tests:
+      - Message
+      - MessageBus
+      - DoctrineORMBridge
+      - Message Tests
+      - MessageBus Tests
+    TrollbusBundle Tests:
+      - Message
+      - MessageBus
+      - DoctrineORMBridge
+      - TrollbusBundle
+      - Message Tests
+      - MessageBus Tests
+      - DoctrineORMBridge Tests

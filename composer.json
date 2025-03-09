@@ -27,7 +27,10 @@
             "./tools/composer-require-checker/vendor/bin/composer-require-checker check ./src/MessageBus/composer.json",
 
             "@composer install --working-dir ./src/DoctrineORMBridge",
-            "./tools/composer-require-checker/vendor/bin/composer-require-checker check ./src/DoctrineORMBridge/composer.json"
+            "./tools/composer-require-checker/vendor/bin/composer-require-checker check ./src/DoctrineORMBridge/composer.json",
+
+            "@composer install --working-dir ./src/TrollbusBundle",
+            "./tools/composer-require-checker/vendor/bin/composer-require-checker check --config-file composer-require-checker.TrollbusBundle.json ./src/TrollbusBundle/composer.json"
         ],
         "composer-unused": [
             "./tools/composer-unused/vendor/bin/composer-unused",
@@ -39,7 +42,10 @@
             "./tools/composer-unused/vendor/bin/composer-unused unused src/MessageBus/composer.json",
 
             "@composer install --working-dir ./src/DoctrineORMBridge",
-            "./tools/composer-unused/vendor/bin/composer-unused unused src/DoctrineORMBridge/composer.json"
+            "./tools/composer-unused/vendor/bin/composer-unused unused src/DoctrineORMBridge/composer.json",
+
+            "@composer install --working-dir ./src/TrollbusBundle",
+            "./tools/composer-unused/vendor/bin/composer-unused unused src/TrollbusBundle/composer.json"
         ],
         "deptrac": "./tools/deptrac/vendor/bin/deptrac --cache-file var/.deptrac.cache analyse",
         "checks": [
