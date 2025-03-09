@@ -24,9 +24,6 @@ final class SimpleMessageHandler implements Handler
         /** @var SimpleMessage $message */
         $message = $messageContext->getMessage();
 
-        return new SimpleMessageResult(
-            foo: $message->foo,
-            bar: $message->bar,
-        );
+        return (new SimpleMessageManager())->handleMessage($message);
     }
 }
