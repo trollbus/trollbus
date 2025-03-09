@@ -11,22 +11,48 @@ deptrac:
 
   paths:
     - ./src
+    - ./tests
 
   layers:
+    # Src layers
     - name: Message
       collectors:
         - type: directory
           value: '%projectDirectory%/src/Message/.*'
+
     - name: MessageBus
       collectors:
         - type: directory
           value: '%projectDirectory%/src/MessageBus/.*'
+
     - name: DoctrineORMBridge
       collectors:
         - type: directory
           value: '%projectDirectory%/src/DoctrineORMBridge/.*'
 
+    # Tests layers
+    - name: Message Tests
+      collectors:
+        - type: directory
+          value: '%projectDirectory%/tests/Message/.*'
+
+    - name: MessageBus Tests
+      collectors:
+        - type: directory
+          value: '%projectDirectory%/tests/MessageBus/.*'
+
+    - name: DoctrineORMBridge Tests
+      collectors:
+        - type: directory
+          value: '%projectDirectory%/tests/DoctrineORMBridge/.*'
+
   ruleset:
+    # Src rulesets
     Message: ~
     MessageBus: [Message]
     DoctrineORMBridge: [Message, MessageBus]
+
+    # Tests rulesets
+    Message Tests: [Message]
+    MessageBus Tests: [Message, MessageBus, Message Tests]
+    DoctrineORMBridge Tests: [Message, MessageBus, DoctrineORMBridge, Message Tests, MessageBus Tests]
