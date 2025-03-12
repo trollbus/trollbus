@@ -13,5 +13,7 @@ Inspired by [Telephantast](https://github.com/telephantast/telephantast). Most o
   - [ ] RabbitMQ Transport
   - [ ] Integration with [RoadRunner Jobs](https://docs.roadrunner.dev/docs/queues-and-jobs/overview-queues)
 - [x] Symfony Bundle
+  - [ ] Service definition, using Attributes
   - [ ] Debug CLI Command
   - [ ] Integrations with Symfony Profiler
+- [ ] Demo app
