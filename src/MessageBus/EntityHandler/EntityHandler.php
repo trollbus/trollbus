@@ -58,7 +58,7 @@ final class EntityHandler implements Handler
 
             /**
              * @psalm-suppress MixedMethodCall
-             * @var TMessage $entity
+             * @var object $entity
              */
             $entity = $this->entityClass::{$this->factoryMethod}($message, $messageContext);
         }
