@@ -22,8 +22,10 @@ use Trollbus\MessageBus\MessageId\CorrelationId;
 use Trollbus\MessageBus\MessageId\MessageId;
 use Trollbus\MessageBus\MessageId\MessageIdNotSet;
 use Trollbus\MessageBus\Transaction\InTransaction;
+use Trollbus\Tests\DoctrineORMBridge\EntityHandler\CreateEntityWithFactoryMethod;
 use Trollbus\Tests\DoctrineORMBridge\EntityHandler\EditEntity;
 use Trollbus\Tests\DoctrineORMBridge\EntityHandler\Entity;
+use Trollbus\Tests\DoctrineORMBridge\EntityHandler\EntityWithFactoryMethod;
 use Trollbus\Tests\DoctrineORMBridge\ManagerRegistry;
 use Trollbus\Tests\MessageBus\MessageBusAssert;
 use Trollbus\Tests\MessageBus\MessageBusTestCases\EventHandler\SomeEvent;
@@ -320,6 +322,38 @@ final class TrollbusBundleTest extends TestCase
         self::assertInstanceOf(Entity::class, $entity);
         self::assertSame('1', $entity->getId());
         self::assertSame('Title 2', $entity->getTitle());
+    }
+
+    public function testEntityFactoryHandlerFromDoctrineORMBridge(): void
+    {
+        $container = $this->createContainerWithAllEnabledConfigs(static function (ContainerConfigurator $di): void {
+            $messageBusConfigurator = MessageBusConfigurator::create($di);
+
+            $messageBusConfigurator->entityFactoryHandler(
+                message: CreateEntityWithFactoryMethod::class,
+                entityClass: EntityWithFactoryMethod::class,
+                handlerMethod: 'createEntity',
+            );
+        });
+        /** @var MessageBus $messageBus */
+        $messageBus = $container->get('trollbus');
+        /** @var ManagerRegistry $doctrine */
+        $doctrine = $container->get('doctrine');
+        $doctrine->createSchema();
+
+        self::assertNull($doctrine->getManager()->find(EntityWithFactoryMethod::class, '1'));
+
+        $messageBus->dispatch(new CreateEntityWithFactoryMethod(
+            id: '1',
+            title: 'Title',
+        ));
+
+        $doctrine->resetManager();
+        $entity =  $doctrine->getManager()->find(EntityWithFactoryMethod::class, '1');
+
+        self::assertInstanceOf(EntityWithFactoryMethod::class, $entity);
+        self::assertSame('1', $entity->getId());
+        self::assertSame('Title', $entity->getTitle());
     }
 
     /**
