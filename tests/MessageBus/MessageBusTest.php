@@ -7,6 +7,7 @@ namespace Trollbus\Tests\MessageBus;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LogLevel;
 use Trollbus\MessageBus\CreatedAt\CreatedAtMiddleware;
+use Trollbus\MessageBus\EntityHandler\EntityFactoryHandler;
 use Trollbus\MessageBus\EntityHandler\EntityHandler;
 use Trollbus\MessageBus\EntityHandler\EntityNotFound;
 use Trollbus\MessageBus\EntityHandler\PropertyCriteriaResolver;
@@ -25,6 +26,10 @@ use Trollbus\MessageBus\MessageId\MessageIdNotSet;
 use Trollbus\MessageBus\Middleware\HandlerWithMiddlewares;
 use Trollbus\MessageBus\Transaction\FakeTransactionProvider;
 use Trollbus\MessageBus\Transaction\WrapInTransactionMiddleware;
+use Trollbus\Tests\MessageBus\MessageBusTestCases\EntityFactoryHandler\CreateEntityWithFactoryMethod;
+use Trollbus\Tests\MessageBus\MessageBusTestCases\EntityFactoryHandler\EntityWithFactoryMethod;
+use Trollbus\Tests\MessageBus\MessageBusTestCases\EntityFactoryHandler\EntityWithFactoryMethodCreated;
+use Trollbus\Tests\MessageBus\MessageBusTestCases\EntityFactoryHandler\InMemoryEntityWithFactoryMethodSaver;
 use Trollbus\Tests\MessageBus\MessageBusTestCases\EntityHandler\EditEntity;
 use Trollbus\Tests\MessageBus\MessageBusTestCases\EntityHandler\Entity;
 use Trollbus\Tests\MessageBus\MessageBusTestCases\EntityHandler\EntityEdited;
@@ -417,6 +422,46 @@ final class MessageBusTest extends TestCase
             correlationId: '1',
             causationId: '1',
         );
+    }
+
+    public function testEntityFactoryHandler(): void
+    {
+        $saver = new InMemoryEntityWithFactoryMethodSaver();
+        $handler = new EntityFactoryHandler(
+            id: EntityFactoryHandler::class,
+            saver: $saver,
+            entityClass: EntityWithFactoryMethod::class,
+            handlerMethod: 'createEntity',
+        );
+        $event = null;
+        /** @var CallableHandler<void, EntityWithFactoryMethodCreated> $eventHandler */
+        $eventHandler = new CallableHandler(
+            id: 'created_entity_handler',
+            handler: static function (EntityWithFactoryMethodCreated $e) use (&$event): void {
+                $event = $e;
+            },
+        );
+        $eventHandler = new EventHandler([$eventHandler]);
+
+        $messageBus = $this->createMessageBus(
+            (new ClassStringMap())
+                ->with(CreateEntityWithFactoryMethod::class, $handler)
+                ->with(EntityWithFactoryMethodCreated::class, $eventHandler),
+        );
+
+        $command = new CreateEntityWithFactoryMethod(id: '1', title: 'Title');
+
+        $messageBus->dispatch($command);
+
+        $entity = $saver->entities['1'] ?? null;
+
+        self::assertInstanceOf(EntityWithFactoryMethod::class, $entity);
+        self::assertSame('1', $entity->id);
+        self::assertSame('Title', $entity->title);
+
+        self::assertInstanceOf(EntityWithFactoryMethodCreated::class, $event);
+        self::assertSame('1', $event->id);
+        self::assertSame('Title', $event->title);
     }
 
     public function testDispatchThrowsHandlerNotFound(): void
