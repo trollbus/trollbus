@@ -10,6 +10,7 @@ use Doctrine\ORM\OptimisticLockException;
 use PHPUnit\Framework\TestCase;
 use Trollbus\DoctrineORMBridge\EntityHandler\DoctrineEntityFinder;
 use Trollbus\DoctrineORMBridge\EntityHandler\DoctrineEntitySaver;
+use Trollbus\MessageBus\EntityHandler\EntityFactoryHandler;
 use Trollbus\MessageBus\EntityHandler\EntityHandler;
 use Trollbus\MessageBus\EntityHandler\EntityNotFound;
 use Trollbus\MessageBus\EntityHandler\PropertyCriteriaResolver;
@@ -104,6 +105,32 @@ final class DoctrineEntityFinderAndSaverTest extends TestCase
         self::assertSame('Title', $savedEntity->getTitle());
 
         self::assertSame('Old title', $entity->getTitle());
+    }
+
+    public function testEntityWithFactoryMethod(): void
+    {
+        $messageBus = new MessageBus(
+            handlerRegistry: new ClassStringMapHandlerRegistry(
+                (new ClassStringMap())->with(
+                    messageClass: CreateEntityWithFactoryMethod::class,
+                    handler: new EntityFactoryHandler(
+                        id: 'entity',
+                        saver: new DoctrineEntitySaver($this->doctrine, true),
+                        entityClass: EntityWithFactoryMethod::class,
+                        handlerMethod: 'createEntity',
+                    ),
+                ),
+            ),
+        );
+        $messageBus->dispatch(new CreateEntityWithFactoryMethod(id: '1', title: 'Title'));
+
+        $em = $this->doctrine->getManager();
+        $em->clear();
+        $entity = $em->find(EntityWithFactoryMethod::class, '1');
+
+        self::assertInstanceOf(EntityWithFactoryMethod::class, $entity);
+        self::assertSame('1', $entity->getId());
+        self::assertSame('Title', $entity->getTitle());
     }
 
     private function createMessageBus(bool $useFactoryMethod, bool $saverFlush): MessageBus
