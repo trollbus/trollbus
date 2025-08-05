@@ -15,7 +15,7 @@
         "trollbus/message": "self.version",
         "trollbus/message-bus": "self.version",
         "doctrine/orm": "^2.20 || ^3.0",
-        "doctrine/persistence": " ^2.4 || ^3 || ^4"
+        "doctrine/persistence": "^3 || ^4"
     },
     "autoload": {
         "psr-4": {
