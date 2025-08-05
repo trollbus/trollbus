@@ -43,7 +43,7 @@ jobs:
           composer-options: --optimize-autoloader --working-dir=./tools/psalm
       # Run all checks
       - name: Run all checks
-        run: composer run checks
+        run: bin/check-multiply-versions.sh
 
   test-old-php:
     runs-on: ubuntu-latest
