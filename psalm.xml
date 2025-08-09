@@ -8,6 +8,7 @@
     findUnusedBaselineEntry="true"
     findUnusedCode="false"
     cacheDirectory="var/psalm"
+    ensureOverrideAttribute="false"
 >
     <issueHandlers>
         <InternalClass errorLevel="error"/>

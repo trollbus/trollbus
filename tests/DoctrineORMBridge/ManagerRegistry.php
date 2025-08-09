@@ -43,18 +43,23 @@ final class ManagerRegistry extends AbstractManagerRegistry
     {
         /** @var EntityManagerInterface $em */
         $em = $this->getManager();
-        $allMetadata = $em->getMetadataFactory()->getAllMetadata();
+        /** @psalm-suppress RedundantFunctionCallGivenDocblockType,RedundantFunctionCall In doctrine/persistence getAllMetadata() was return array instead list of metadata instances */
+        $allMetadata = array_values($em->getMetadataFactory()->getAllMetadata());
 
         $schemaTool = new SchemaTool($em);
         $schemaTool->dropSchema($allMetadata);
         $schemaTool->createSchema($allMetadata);
     }
 
+    /**
+     * @psalm-suppress InvalidReturnType In doctrine/persistence return type was ObjectManager.
+     */
     #[\Override]
     protected function getService(string $name): object
     {
         switch ($name) {
             case self::CONNECTION_SERVICE:
+                /** @psalm-suppress InvalidReturnStatement In doctrine/persistence return type was ObjectManager. */
                 return $this->conn ??= DriverManager::getConnection(['driver' => 'pdo_sqlite', 'memory' => true]);
             case self::EM_SERVICE:
                 if (null !== $this->em) {

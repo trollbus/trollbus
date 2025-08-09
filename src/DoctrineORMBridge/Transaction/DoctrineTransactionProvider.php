@@ -20,6 +20,7 @@ final class DoctrineTransactionProvider implements TransactionProvider
     {
         $em = EntityManagerDescriber::getEntityManager($this->doctrine, $this->entityManagerName);
 
+        /** @psalm-suppress MixedReturnStatement In doctirne/orm:^2.20 \Doctrine\ORM\EntityManagerInterface::wrapInTransaction() return mixed */
         return $em->wrapInTransaction(static fn(): mixed => $callback());
     }
 }
