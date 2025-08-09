@@ -27,7 +27,9 @@ final class MessageContext extends ReadonlyMessageContext
     /**
      * @template TTResult
      * @template TTMessage of Message<TTResult>
+     *
      * @param TTMessage|Envelope<TTResult, TTMessage> $messageOrEnvelop
+     *
      * @return self<TTResult, TTMessage>
      */
     public static function start(MessageBus $messageBus, Message|Envelope $messageOrEnvelop): self
@@ -37,8 +39,9 @@ final class MessageContext extends ReadonlyMessageContext
 
     /**
      * @template TTResult
-     * @template TTMessage of Message<TTResult>
-     * @param TTMessage|Envelope<TTResult, TTMessage> $messageOrEnvelop
+     *
+     * @param Message<TTResult>|Envelope<TTResult, Message<TTResult>> $messageOrEnvelop
+     *
      * @return (TTResult is void ? null : TTResult)
      */
     public function dispatch(Message|Envelope $messageOrEnvelop): mixed
