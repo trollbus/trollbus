@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace Trollbus\Tests\MessageBus\MessageBusTestCases\EntityFactoryHandlerWithDeferredEvent;
 
 use PHPUnit\Framework\TestCase;
+use Trollbus\MessageBus\DeferredEvent\DeferEventsMiddleware;
+use Trollbus\MessageBus\DeferredEvent\DeferredEventsStorage;
+use Trollbus\MessageBus\DeferredEvent\HandleDeferredEventsMiddleware;
 use Trollbus\MessageBus\EntityHandler\EntityFactoryHandler;
 use Trollbus\MessageBus\EntityHandler\EntitySaver;
 use Trollbus\MessageBus\Handler\CallableHandler;
@@ -13,6 +16,7 @@ use Trollbus\MessageBus\HandlerRegistry\ClassStringMap;
 use Trollbus\MessageBus\HandlerRegistry\ClassStringMapHandlerRegistry;
 use Trollbus\MessageBus\MessageBus;
 use Trollbus\MessageBus\MessageContext;
+use Trollbus\MessageBus\Middleware\HandlerWithMiddlewares;
 
 final class EntityFactoryHandlerWithDeferredEventTest extends TestCase
 {
@@ -36,17 +40,17 @@ final class EntityFactoryHandlerWithDeferredEventTest extends TestCase
 
         try {
             $bus->dispatch(new CreateEntity());
-        } catch (\RuntimeException) {}
+        } catch (\RuntimeException) {
+        }
 
         self::assertFalse($this->commandAfterEntityCreatedWasHandled);
     }
 
     private function createMessageBus(bool $canSave): MessageBus
     {
-        $saver = new class($canSave) implements EntitySaver
-        {
+        $saver = new class ($canSave) implements EntitySaver {
             public function __construct(
-                private bool $canSave
+                private bool $canSave,
             ) {}
 
             public function save(object $entity): void
@@ -57,28 +61,39 @@ final class EntityFactoryHandlerWithDeferredEventTest extends TestCase
             }
         };
 
+        $deferredEventsStorage = new DeferredEventsStorage();
+        $deferEventsMiddleware = new DeferEventsMiddleware($deferredEventsStorage);
+        $handleDeferredEventsMiddleware = new HandleDeferredEventsMiddleware($deferredEventsStorage);
+
+        /** @var CallableHandler<void, EntityCreated> $entityCreatedHandler */
+        $entityCreatedHandler = new CallableHandler(
+            EntityCreated::class . '.handler',
+            static fn(EntityCreated $event, MessageContext $messageContext) => $messageContext->dispatch(new CommandAfterEntityCreated()),
+        );
+
         return new MessageBus(
             new ClassStringMapHandlerRegistry(
                 (new ClassStringMap())
                     ->with(
                         CreateEntity::class,
-                        new EntityFactoryHandler(CreateEntity::class, $saver, Entity::class, 'create'),
+                        new HandlerWithMiddlewares(
+                            new EntityFactoryHandler(CreateEntity::class, $saver, Entity::class, 'create'),
+                            [$handleDeferredEventsMiddleware],
+                        ),
                     )->with(
                         EntityCreated::class,
                         new EventHandler([
-                            new CallableHandler(
-                                EntityCreated::class,
-                                fn(EntityCreated $event, MessageContext $messageContext) => $messageContext->dispatch(new CommandAfterEntityCreated()),
-                            )
-                        ])
+                            $entityCreatedHandler,
+                        ]),
                     )->with(
                         CommandAfterEntityCreated::class,
                         new CallableHandler(
                             CommandAfterEntityCreated::class,
-                            fn() => $this->commandAfterEntityCreatedWasHandled = true,
-                        )
-                    )
-            )
+                            function (): void { $this->commandAfterEntityCreatedWasHandled = true; },
+                        ),
+                    ),
+            ),
+            [$deferEventsMiddleware],
         );
     }
 }
