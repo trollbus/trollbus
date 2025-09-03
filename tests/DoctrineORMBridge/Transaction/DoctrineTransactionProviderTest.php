@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Trollbus\Tests\DoctrineORMBridge\Transaction;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Trollbus\DoctrineORMBridge\Transaction\DoctrineTransactionProvider;
 use Trollbus\MessageBus\Handler\CallableHandler;
@@ -26,6 +27,9 @@ final class DoctrineTransactionProviderTest extends TestCase
 
     public function test(): void
     {
+        /** @var Connection $connection */
+        $connection = $this->doctrine->getConnection();
+
         /** @psalm-suppress InvalidArgument CreateEntity<void>, but return type of CallableHandler is never, because it throws ErrorAfterEntityCreated */
         $messageBus = new MessageBus(
             handlerRegistry: new ClassStringMapHandlerRegistry(
@@ -54,7 +58,7 @@ final class DoctrineTransactionProviderTest extends TestCase
             ),
             middlewares: [
                 new WrapInTransactionMiddleware(
-                    new DoctrineTransactionProvider($this->doctrine),
+                    new DoctrineTransactionProvider($connection),
                 ),
             ],
         );
