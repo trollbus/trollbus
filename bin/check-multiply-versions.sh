@@ -13,6 +13,12 @@ for doctrine_orm_ver in "^2.20" "3.0.*" "^3.0"; do
   composer run checks || exit $?
 done
 
+for doctrine_dbal_ver in "3.2.*" "^3.2" "4.0.*" "^4"; do
+  notice "Check with Doctrine DBAL ${doctrine_dbal_ver}"
+  composer update --with "doctrine/dbal:${doctrine_dbal_ver}" --with-all-dependencies && \
+  composer run checks || exit $?
+done
+
 for doctrine_persistence_ver in "3.0.*" "^3" "4.0.*" "^4"; do
   notice "Check with Doctrine Persistence ${doctrine_persistence_ver}"
   composer update --with "doctrine/persistence:${doctrine_persistence_ver}" --with-all-dependencies && \
