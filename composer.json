@@ -71,6 +71,7 @@
     "require": {
         "php": "8.1.* || 8.2.* || 8.3.* || 8.4.*",
         "ext-mbstring": "*",
+        "doctrine/dbal": "^3.2 || ^4",
         "doctrine/orm": "^2.20 || ^3.0",
         "doctrine/persistence": "^3 || ^4",
         "psr/clock": "^1.0",
