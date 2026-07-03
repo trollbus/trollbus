@@ -25,7 +25,7 @@ for doctrine_persistence_ver in "3.0.*" "^3" "4.0.*" "^4"; do
   composer run checks || exit $?
 done
 
-for symfony_ver in "^6.4"; do
+for symfony_ver in "^6.4" "^7.4" "8.0.*"; do
   notice "Check with Symfony ${symfony_ver}"
   composer update \
     --with "symfony/config:${symfony_ver}" \
@@ -42,7 +42,11 @@ done
 # See more: https://github.com/symfony/symfony/commit/a0e2df8273003b8a1437263a7cad6d61295fa15b
 notice "Check with Symfony DependencyInjection 7.4.8"
 composer update \
+  --with "symfony/config:^7.4" \
+  --with "symfony/console:^7.4" \
   --with "symfony/dependency-injection:7.4.8" \
+  --with "symfony/http-kernel:^7.4" \
+  --with "symfony/cache:^7.4" \
   --with-all-dependencies && \
   composer run checks || exit $?
 
