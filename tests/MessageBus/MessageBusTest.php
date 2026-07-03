@@ -262,10 +262,14 @@ final class MessageBusTest extends TestCase
     {
         $handler1Handled = false;
         /** @var CallableHandler<void, SomeEvent> $handler1 */
-        $handler1 = new CallableHandler('handler1', static function () use (&$handler1Handled): void { $handler1Handled = true; });
+        $handler1 = new CallableHandler('handler1', static function () use (&$handler1Handled): void {
+            $handler1Handled = true;
+        });
         $handler2Handled = false;
         /** @var CallableHandler<void, SomeEvent> $handler2 */
-        $handler2 = new CallableHandler('handler2', static function () use (&$handler2Handled): void { $handler2Handled = true; });
+        $handler2 = new CallableHandler('handler2', static function () use (&$handler2Handled): void {
+            $handler2Handled = true;
+        });
 
         $messageBus = $this->createMessageBus(
             (new ClassStringMap())
