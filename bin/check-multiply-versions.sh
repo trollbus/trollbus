@@ -25,7 +25,7 @@ for doctrine_persistence_ver in "3.0.*" "^3" "4.0.*" "^4"; do
   composer run checks || exit $?
 done
 
-for symfony_ver in "^6.4" "7.0.*" "7.1.*" "7.2.*" "^7.3"; do
+for symfony_ver in "^6.4"; do
   notice "Check with Symfony ${symfony_ver}"
   composer update \
     --with "symfony/config:${symfony_ver}" \
@@ -36,3 +36,16 @@ for symfony_ver in "^6.4" "7.0.*" "7.1.*" "7.2.*" "^7.3"; do
     --with-all-dependencies && \
   composer run checks || exit $?
 done
+
+# In symfony 7.4.9 parameter names of Symfony\Component\DependencyInjection\Extension\ConfigurableExtensionInterface
+# was changed. It broke backward compatibility.
+# See more: https://github.com/symfony/symfony/commit/a0e2df8273003b8a1437263a7cad6d61295fa15b
+notice "Check with Symfony DependencyInjection 7.4.8"
+composer update \
+  --with "symfony/dependency-injection:7.4.8" \
+  --with-all-dependencies && \
+  composer run checks || exit $?
+
+notice "Check with latest versions"
+composer update --with-all-dependencies && \
+  composer run checks || exit $?

@@ -68,10 +68,15 @@ final class ManagerRegistry extends AbstractManagerRegistry
 
                 /** @var Connection $conn */
                 $conn = $this->getService(self::CONNECTION_SERVICE);
+                $config = ORMSetup::createAttributeMetadataConfiguration([$this->entityDir], true);
+
+                if (method_exists($config, 'enableNativeLazyObjects')) {
+                    $config->enableNativeLazyObjects(version_compare(PHP_VERSION, '8.4.0', '>='));
+                }
 
                 return $this->em = new EntityManager(
                     $conn,
-                    ORMSetup::createAttributeMetadataConfiguration([$this->entityDir], true),
+                    $config,
                 );
         }
 
