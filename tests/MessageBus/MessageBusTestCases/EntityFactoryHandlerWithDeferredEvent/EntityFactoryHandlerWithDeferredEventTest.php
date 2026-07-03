@@ -89,7 +89,9 @@ final class EntityFactoryHandlerWithDeferredEventTest extends TestCase
                         CommandAfterEntityCreated::class,
                         new CallableHandler(
                             CommandAfterEntityCreated::class,
-                            function (): void { $this->commandAfterEntityCreatedWasHandled = true; },
+                            function (): void {
+                                $this->commandAfterEntityCreatedWasHandled = true;
+                            },
                         ),
                     ),
             ),

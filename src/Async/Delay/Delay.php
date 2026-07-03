@@ -8,7 +8,7 @@ use Trollbus\MessageBus\Stamp;
 
 final class Delay implements Stamp
 {
-    private const SECONDS_MULTIPLIER = 1000;
+    private const SECONDS_MULTIPLIER = 1_000;
     private const MINUTES_MULTIPLIER = self::SECONDS_MULTIPLIER * 60;
     private const HOURS_MULTIPLIER = self::MINUTES_MULTIPLIER * 60;
     private const DAYS_MULTIPLIER = self::HOURS_MULTIPLIER * 24;
