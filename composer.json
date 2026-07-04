@@ -85,6 +85,7 @@
     "require-dev": {
         "ext-pdo": "*",
         "phpunit/phpunit": "^10.5",
-        "symfony/cache": "^6.4 || ^7.4 || ^8.0"
+        "symfony/cache": "^6.4 || ^7.4 || ^8.0",
+        "symfony/uid": "^6.4 || ^7.4 || ^8.0"
     }
 }
