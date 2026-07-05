@@ -45,6 +45,16 @@ jobs:
       - name: Run all checks
         run: bin/check-multiply-versions.sh
 
+      # TrollbusBundle checks
+      - name: Install symfony-e2e dependencies
+        uses: ramsey/composer-install@v3
+        with:
+          composer-options: --optimize-autoloader --working-dir=./symfony-e2e
+
+      - name: Run Symfony TrollbusBundle e2e checks
+        working-directory: symfony-e2e
+        run: composer install && composer run checks
+
   test-old-php:
     runs-on: ubuntu-latest
     name: Run tests on old PHP version

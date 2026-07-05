@@ -1,5 +1,6 @@
 {
     "symbol-whitelist": [
+        "Symfony\\Component\\Uid\\Factory\\UuidFactory",
         "Trollbus\\DoctrineORMBridge\\DoctrineORMBridge",
         "Trollbus\\DoctrineORMBridge\\EntityHandler\\DoctrineEntityFinder",
         "Trollbus\\DoctrineORMBridge\\EntityHandler\\DoctrineEntitySaver",
