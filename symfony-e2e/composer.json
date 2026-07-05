@@ -64,6 +64,11 @@
         ],
         "post-update-cmd": [
             "@auto-scripts"
+        ],
+        "checks": [
+            "bin/console cache:clear",
+            "bin/console lint:container",
+            "bin/phpunit"
         ]
     },
     "conflict": {
