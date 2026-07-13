@@ -12,6 +12,8 @@ $config = (new Config())
         Finder::create()
             ->in(__DIR__ . '/src')
             ->in(__DIR__ . '/tests')
+            ->in(__DIR__ . '/symfony-e2e/src')
+            ->in(__DIR__ . '/symfony-e2e/tests')
             ->append([
                 __FILE__,
             ]),
