@@ -10,18 +10,30 @@ final class MessageBusConfiguration
     public const HANDLER_REGISTRY = 'trollbus.handler_registry';
     public const HANDLER_TAG = 'trollbus.handler';
     public const HANDLER_TAG_MESSAGE = 'message';
-    public const HANDLER_TAG_MIDDLEWARES = 'middlewares';
     public const MIDDLEWARE_TAG = 'trollbus.middleware';
-
-    private static int $counter = 0;
 
     /**
      * @return non-empty-string
      */
-    public static function nextHandlerService(): string
+    public static function nextHandlerId(): string
     {
-        $serviceId = \sprintf('trollbus.handler.%s', self::$counter);
-        ++self::$counter;
+        /** @var int $counter */
+        static $counter = 0;
+        $serviceId = \sprintf('trollbus.handler.%s', $counter);
+        ++$counter;
+
+        return $serviceId;
+    }
+
+    /**
+     * @return non-empty-string
+     */
+    public static function nextMiddlewareId(): string
+    {
+        /** @var int $counter */
+        static $counter = 0;
+        $serviceId = \sprintf('trollbus.middleware.%s', $counter);
+        ++$counter;
 
         return $serviceId;
     }

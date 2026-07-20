@@ -15,6 +15,9 @@ use Trollbus\MessageBus\Handler\CallableHandler;
 use Trollbus\MessageBus\Middleware\HandlerWithMiddlewares;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
 
+/**
+ * @deprecated Will be removed in 0.4.0. Use attributes to configure message handlers and middlewares.
+ */
 final class MessageBusConfigurator
 {
     public function __construct(
@@ -34,7 +37,7 @@ final class MessageBusConfigurator
     public function handler(string $message, string $service, array $middlewares = []): self
     {
         if (\count($middlewares) > 0) {
-            $decoratedService = MessageBusConfiguration::nextHandlerService();
+            $decoratedService = MessageBusConfiguration::nextHandlerId();
             $this->di
                 ->services()
                 ->set($decoratedService, HandlerWithMiddlewares::class)
@@ -68,7 +71,7 @@ final class MessageBusConfigurator
         ?string $handlerId = null,
         array $middlewares = [],
     ): self {
-        $handlerService = MessageBusConfiguration::nextHandlerService();
+        $handlerService = MessageBusConfiguration::nextHandlerId();
         $this->di
             ->services()
             ->set($handlerService, CallableHandler::class)
@@ -98,7 +101,7 @@ final class MessageBusConfigurator
         ?string $handlerId = null,
         array $middlewares = [],
     ): self {
-        $handlerService = MessageBusConfiguration::nextHandlerService();
+        $handlerService = MessageBusConfiguration::nextHandlerId();
         $this->di
             ->services()
             ->set($handlerService, EntityHandler::class)
@@ -131,7 +134,7 @@ final class MessageBusConfigurator
         ?string $handlerId = null,
         array $middlewares = [],
     ): self {
-        $handlerService = MessageBusConfiguration::nextHandlerService();
+        $handlerService = MessageBusConfiguration::nextHandlerId();
         $this->di
             ->services()
             ->set($handlerService, EntityFactoryHandler::class)
@@ -156,15 +159,5 @@ final class MessageBusConfigurator
                 ->tag(MessageBusConfiguration::MIDDLEWARE_TAG, ['priority' => $priority]);
 
         return $this;
-    }
-
-    /**
-     * @return non-empty-string
-     *
-     * @deprecated Use {@see MessageBusConfiguration::nextHandlerService()}, will be remove in `0.3.0`.
-     */
-    public static function nextHandlerService(): string
-    {
-        return MessageBusConfiguration::nextHandlerService();
     }
 }
