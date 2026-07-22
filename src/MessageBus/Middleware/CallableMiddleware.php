@@ -14,7 +14,7 @@ use Trollbus\MessageBus\MessageContext;
 final class CallableMiddleware implements Middleware
 {
     /**
-     * @param callable(MessageContext<TResult, TMessage>, Pipeline<TResult, TMessage>): TResult $callable
+     * @param callable(Pipeline<TResult, TMessage>=, MessageContext<TResult, TMessage>=): TResult $callable
      */
     public function __construct(
         private readonly mixed $callable,
@@ -27,6 +27,6 @@ final class CallableMiddleware implements Middleware
     #[\Override]
     public function handle(MessageContext $messageContext, Pipeline $pipeline): mixed
     {
-        return ($this->callable)($messageContext, $pipeline);
+        return ($this->callable)($pipeline, $messageContext);
     }
 }
