@@ -7,7 +7,7 @@ namespace App\Handler\Attribute;
 use Trollbus\MessageBus\MessageContext;
 use Trollbus\TrollbusBundle\Attribute\Handler;
 
-final class SomeHandler
+final class AttributeBasedHandler
 {
     /** @var list<string> */
     private array $calledMessages = [];

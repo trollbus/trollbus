@@ -8,7 +8,7 @@ use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigura
 
 return static function (ContainerConfigurator $di): void {
     $di->services()
-        ->set(SomeHandler::class)
+        ->set(AttributeBasedHandler::class)
             ->autoconfigure()
             ->public();
 };

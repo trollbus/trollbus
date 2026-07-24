@@ -4,21 +4,18 @@ declare(strict_types=1);
 
 namespace App\Tests\Handler\Attribute;
 
+use App\Handler\Attribute\AttributeBasedHandler;
 use App\Handler\Attribute\SomeCommand;
-use App\Handler\Attribute\SomeHandler;
 use App\Tests\KernelTestCase;
 
-final class HandlerTest extends KernelTestCase
+final class AttributeBasedHandlerTest extends KernelTestCase
 {
-    protected function setUp(): void
-    {
-        self::bootKernel();
-    }
-
     public function test(): void
     {
-        $handler = self::getContainer()->get(SomeHandler::class);
-        \assert($handler instanceof SomeHandler);
+        self::bootKernel();
+
+        $handler = self::getContainer()->get(AttributeBasedHandler::class);
+        \assert($handler instanceof AttributeBasedHandler);
 
         $bus = self::getMessageBus();
 
