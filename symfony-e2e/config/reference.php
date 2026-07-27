@@ -723,6 +723,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         entity_finder?: scalar|Param|null, // Default: "Trollbus\\DoctrineORMBridge\\EntityHandler\\DoctrineEntityFinder"
  *         entity_saver?: scalar|Param|null, // Default: "Trollbus\\DoctrineORMBridge\\EntityHandler\\DoctrineEntitySaver"
  *         criteria_resolver?: scalar|Param|null, // Default: "Trollbus\\MessageBus\\EntityHandler\\PropertyCriteriaResolver"
+ *         classes?: list<string|Param>,
  *     },
  *     doctrine_orm_bridge?: bool|array{
  *         enabled?: bool|Param, // Default: true
