@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App\Handler\Attribute;
 
+use App\Middleware\Attribute\MessageTrack\MessageTrackMiddleware;
 use Trollbus\MessageBus\MessageContext;
 use Trollbus\TrollbusBundle\Attribute\Handler;
+use Trollbus\TrollbusBundle\Attribute\WithMiddleware;
 
 final class AttributeBasedHandler
 {
@@ -24,6 +26,7 @@ final class AttributeBasedHandler
     }
 
     #[Handler]
+    #[WithMiddleware(MessageTrackMiddleware::MIDDLEWARE)]
     public function someCommandHandler(SomeCommand $command, MessageContext $context): true
     {
         $this->calledMessages[] = 'SomeCommand: ' . $command->arg;
