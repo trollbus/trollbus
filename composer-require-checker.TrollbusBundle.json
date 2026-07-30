@@ -5,6 +5,9 @@
         "Trollbus\\DoctrineORMBridge\\EntityHandler\\DoctrineEntityFinder",
         "Trollbus\\DoctrineORMBridge\\EntityHandler\\DoctrineEntitySaver",
         "Trollbus\\DoctrineORMBridge\\Flusher\\FlusherMiddleware",
-        "Trollbus\\DoctrineORMBridge\\Transaction\\DoctrineTransactionProvider"
+        "Trollbus\\DoctrineORMBridge\\Transaction\\DoctrineTransactionProvider",
+        "Doctrine\\ORM\\Mapping\\Driver\\AttributeDriver",
+        "Doctrine\\ORM\\Mapping\\Driver\\SimplifiedXmlDriver",
+        "Doctrine\\Persistence\\Mapping\\Driver\\MappingDriverChain"
     ]
 }

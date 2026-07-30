@@ -28,8 +28,10 @@ use Trollbus\MessageBus\MessageId\MessageIdGenerator;
 use Trollbus\MessageBus\MessageId\MessageIdMiddleware;
 use Trollbus\MessageBus\MessageId\RandomMessageIdGenerator;
 use Trollbus\MessageBus\Transaction\WrapInTransactionMiddleware;
+use Trollbus\TrollbusBundle\DependencyInjection\CompilerPass\AttributePass;
 use Trollbus\TrollbusBundle\DependencyInjection\CompilerPass\DebugHandlerPass;
 use Trollbus\TrollbusBundle\DependencyInjection\CompilerPass\DeferredEventPass;
+use Trollbus\TrollbusBundle\DependencyInjection\CompilerPass\DoctrineEntityClassPass;
 use Trollbus\TrollbusBundle\DependencyInjection\CompilerPass\HandlerRegistryPass;
 use Trollbus\TrollbusBundle\DependencyInjection\MessageBusConfiguration;
 use Trollbus\TrollbusBundle\MessageId\SymfonyUidMessageIdGenerator;
@@ -58,7 +60,8 @@ use function Symfony\Component\DependencyInjection\Loader\Configurator\tagged_it
  *         enabled: bool,
  *         entity_finder: non-empty-string,
  *         entity_saver: non-empty-string,
- *         criteria_resolver: non-empty-string
+ *         criteria_resolver: non-empty-string,
+ *         classes: list<class-string>,
  *     },
  *     doctrine_orm_bridge?: array{
  *         enabled: bool,
@@ -76,6 +79,8 @@ final class TrollbusBundle extends AbstractBundle
     #[\Override]
     public function build(ContainerBuilder $container): void
     {
+        $container->addCompilerPass(new DoctrineEntityClassPass());
+        $container->addCompilerPass(new AttributePass());
         $container->addCompilerPass(new HandlerRegistryPass());
         $container->addCompilerPass(new DeferredEventPass());
         $container->addCompilerPass(new DebugHandlerPass());
@@ -112,7 +117,7 @@ final class TrollbusBundle extends AbstractBundle
         $this->loadLogger($config, $services);
         $this->loadMessageId($config, $services, $container);
         $this->loadTransaction($config, $services);
-        $this->loadEntityHandler($config, $services);
+        $this->loadEntityHandler($config, $services, $container);
         $this->loadDoctrineOrmBridge($config, $services, $container);
 
         $configurator
@@ -316,13 +321,27 @@ final class TrollbusBundle extends AbstractBundle
         }
 
         $node->children()->scalarNode('criteria_resolver')->defaultValue(PropertyCriteriaResolver::class);
+
+        $node->children()->arrayNode('classes')
+            // For compatibility with Symfony 6.4
+            ->scalarPrototype()
+                ->validate()
+                    ->ifTrue(static fn(mixed $value) => !(\is_string($value) && class_exists($value)))
+                    ->thenInvalid('Invalid entity class %s.');
+        //  ->stringPrototype()
+        //      ->validate()
+        //          ->ifFalse(class_exists(...))
+        //          ->thenInvalid('Invalid entity class %s.');
     }
 
     /**
      * @psalm-param Config $config
      */
-    private function loadEntityHandler(array $config, ServicesConfigurator $services): void
+    private function loadEntityHandler(array $config, ServicesConfigurator $services, ContainerBuilder $container): void
     {
+        MessageBusConfiguration::setParamEntityHandlerEnabled($container, $config['entity_handler']['enabled']);
+        MessageBusConfiguration::addParamEntityHandlerClasses($container, $config['entity_handler']['classes']);
+
         if (false === $config['entity_handler']['enabled']) {
             return;
         }
@@ -367,11 +386,15 @@ final class TrollbusBundle extends AbstractBundle
     /**
      * @psalm-param Config $config
      */
-    private function loadDoctrineOrmBridge(array &$config, ServicesConfigurator $services, ContainerBuilder $builder): void
+    private function loadDoctrineOrmBridge(array $config, ServicesConfigurator $services, ContainerBuilder $container): void
     {
         if (false === isset($config['doctrine_orm_bridge'])) {
+            MessageBusConfiguration::setParamDoctrineBridgeEnabled($container, false);
+
             return;
         }
+
+        MessageBusConfiguration::setParamDoctrineBridgeEnabled($container, $config['doctrine_orm_bridge']['enabled']);
 
         if (false === $config['doctrine_orm_bridge']['enabled']) {
             return;

@@ -20,6 +20,11 @@ final class DeferredEventPass implements CompilerPassInterface
 {
     public function process(ContainerBuilder $container): void
     {
+        // Skip, if entity handlers not enabled
+        if (!MessageBusConfiguration::getParamEntityHandlerEnabled($container)) {
+            return;
+        }
+
         $container->setDefinition(
             id: DeferredEventsStorage::class,
             definition: new Definition(DeferredEventsStorage::class),
@@ -55,13 +60,13 @@ final class DeferredEventPass implements CompilerPassInterface
                     definition: new Definition(
                         class: HandlerWithMiddlewares::class,
                         arguments: [
-                            new Reference($decoratorServiceId . '.inner'),
+                            new Reference('.inner'),
                             [
                                 new Reference(id: HandleDeferredEventsMiddleware::class),
                             ],
                         ],
                     ),
-                )->setDecoratedService($serviceId);
+                )->setDecoratedService($serviceId, $decoratorServiceId . '.inner', -1_000);
             }
         }
     }
@@ -80,7 +85,7 @@ final class DeferredEventPass implements CompilerPassInterface
 
         if (is_a($class, HandlerWithMiddlewares::class, true)) {
             /** @psalm-suppress MixedAssignment */
-            $innerArg = $definition->getArgument(0);
+            $innerArg = $definition->getArgument('$inner');
 
             if (null !== ($decoratedService = $definition->getDecoratedService())) {
                 $inner = $container->getDefinition((string) $decoratedService[0]);

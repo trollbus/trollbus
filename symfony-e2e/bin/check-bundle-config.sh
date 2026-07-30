@@ -121,6 +121,7 @@ trollbus:
         entity_finder: Trollbus\DoctrineORMBridge\EntityHandler\DoctrineEntityFinder
         entity_saver: Trollbus\DoctrineORMBridge\EntityHandler\DoctrineEntitySaver
         criteria_resolver: Trollbus\MessageBus\EntityHandler\PropertyCriteriaResolver
+        classes: {}
     doctrine_orm_bridge:
         enabled: true
         manager_registry: doctrine
@@ -154,6 +155,7 @@ trollbus:
     entity_handler:
         enabled: false
         criteria_resolver: Trollbus\MessageBus\EntityHandler\PropertyCriteriaResolver
+        classes: {}
 
 EOF
     )
@@ -184,6 +186,7 @@ trollbus:
         entity_finder: Trollbus\DoctrineORMBridge\EntityHandler\DoctrineEntityFinder
         entity_saver: Trollbus\DoctrineORMBridge\EntityHandler\DoctrineEntitySaver
         criteria_resolver: Trollbus\MessageBus\EntityHandler\PropertyCriteriaResolver
+        classes: {}
     doctrine_orm_bridge:
         enabled: true
         manager_registry: doctrine
@@ -220,6 +223,7 @@ trollbus:
         entity_finder: Trollbus\DoctrineORMBridge\EntityHandler\DoctrineEntityFinder
         entity_saver: Trollbus\DoctrineORMBridge\EntityHandler\DoctrineEntitySaver
         criteria_resolver: Trollbus\MessageBus\EntityHandler\PropertyCriteriaResolver
+        classes: {}
     doctrine_orm_bridge:
         enabled: true
         manager_registry: doctrine
