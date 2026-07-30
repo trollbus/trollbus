@@ -29,7 +29,6 @@ jobs:
           SPLIT_SHA=`git subtree split --prefix=src/${{ matrix.package.namespace }}`
           REPO_URL="https://${{ secrets.SPLITTER_ACCESS_TOKEN }}@github.com/trollbus/${{ matrix.package.repo }}.git"
           gh release create ${{ github.event.release.tag_name }} \
-            --verify-tag \
             --repo trollbus/${{ matrix.package.repo }} \
             --target "$SPLIT_SHA" \
             --generate-notes \
