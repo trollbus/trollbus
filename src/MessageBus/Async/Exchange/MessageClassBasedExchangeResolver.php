@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Trollbus\MessageBus\Async;
+namespace Trollbus\MessageBus\Async\Exchange;
 
 final class MessageClassBasedExchangeResolver implements ExchangeResolver
 {
