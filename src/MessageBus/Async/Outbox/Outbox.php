@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Trollbus\Async\Outbox;
+namespace Trollbus\MessageBus\Async\Outbox;
 
 use Trollbus\MessageBus\Envelope;
 use Trollbus\MessageBus\InheritanceContextAttribute;

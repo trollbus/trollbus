@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Trollbus\Async\Outbox;
+namespace Trollbus\MessageBus\Async\Outbox;
 
-use Trollbus\Async\Queue;
-use Trollbus\Async\TransportPublisher;
+use Trollbus\MessageBus\Async\Queue;
+use Trollbus\MessageBus\Async\TransportPublisher;
 use Trollbus\MessageBus\MessageContext;
 use Trollbus\MessageBus\MessageId\MessageIdNotSet;
 use Trollbus\MessageBus\Middleware\Middleware;

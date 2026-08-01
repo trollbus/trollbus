@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Trollbus\Async;
+namespace Trollbus\MessageBus\Async;
 
 interface TransportSetup
 {

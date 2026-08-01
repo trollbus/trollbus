@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Trollbus\Async;
+namespace Trollbus\MessageBus\Async;
 
 use Trollbus\Message\Message;
 use Trollbus\MessageBus\Envelope;

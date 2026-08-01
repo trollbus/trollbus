@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Trollbus\Async;
+namespace Trollbus\MessageBus\Async;
 
 use Trollbus\MessageBus\MessageContext;
 use Trollbus\MessageBus\Middleware\Middleware;
