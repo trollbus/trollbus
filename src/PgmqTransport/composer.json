@@ -1,0 +1,44 @@
+{
+    "name": "trollbus/pgmq-transport",
+    "description": "Async pgmq transport for Trollbus",
+    "keywords": ["trollbus", "message", "bus", "cqrs", "command", "query", "event", "postgres", "postgresql", "pgmq", "async", "pub", "sub", "pub/sub", "pubsub"],
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Kenny1911",
+            "email": "o-muzyka@mail.ru"
+        }
+    ],
+    "require": {
+        "php": "8.1.* || 8.2.* || 8.3.* || 8.4.* || 8.5.*",
+        "ext-pdo": "*",
+        "trollbus/message": "self.version",
+        "trollbus/message-bus": "self.version"
+    },
+    "autoload": {
+        "psr-4": {
+            "Trollbus\\PgmqPdoTransport\\": "./"
+        }
+    },
+    "config": {
+        "lock": false,
+        "vendor-dir": "./../../var/PgmqTransport/vendor"
+    },
+    "repositories": {
+        "trollbus/message-bus": {
+            "type": "path",
+            "url": "./../MessageBus",
+            "options": {
+                "version": "self.version"
+            }
+        },
+        "trollbus/message": {
+            "type": "path",
+            "url": "./../Message",
+            "options": {
+                "version": "self.version"
+            }
+        }
+    }
+}
