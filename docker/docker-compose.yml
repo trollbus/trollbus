@@ -1,0 +1,23 @@
+name: trollbus
+
+services:
+  php:
+    build:
+      dockerfile: php.Dockerfile
+    working_dir: "${PWD?}/../"
+    volumes:
+      - "${PWD?}/../:${PWD?}/../"
+    user: "${UID:?}:${GID:?}"
+    command: ["sleep", "infinity"]
+    init: true
+
+  db:
+    build:
+      dockerfile: postgres.Dockerfile
+    volumes:
+      - ./db:/var/lib/postgresql
+      - ./docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
+    environment:
+      POSTGRES_USER: trollbus
+      POSTGRES_PASSWORD: 123
+      POSTGRES_DB: trollbus
