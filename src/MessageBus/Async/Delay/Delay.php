@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Trollbus\Async\Delay;
+namespace Trollbus\MessageBus\Async\Delay;
 
 use Trollbus\MessageBus\Stamp;
 

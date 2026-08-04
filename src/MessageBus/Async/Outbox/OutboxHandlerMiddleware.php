@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Trollbus\Async\Outbox;
+namespace Trollbus\MessageBus\Async\Outbox;
 
-use Trollbus\Async\TransportPublisher;
+use Trollbus\MessageBus\Async\TransportPublisher;
 use Trollbus\MessageBus\MessageContext;
 use Trollbus\MessageBus\Middleware\Middleware;
 use Trollbus\MessageBus\Middleware\Pipeline;
