@@ -81,7 +81,17 @@ check_no_code_changes() {
 }
 restore_composer_dependencies() {
     {
-        git checkout HEAD -- . ":!${0}" && \
+        TMP=$(mktemp)
+
+        # 1. Save current file to temp file before
+        # 2. Restore, using git reset hard
+        # 3. Restore current file
+        rm "$TMP" && \
+        cp "${0}" "$TMP" && \
+        git add . && \
+        git reset --hard HEAD && \
+        cat "$TMP" > "${0}" && \
+        rm "${TMP}" && \
         composer install
     } > /dev/null 2>&1
 }
@@ -137,7 +147,7 @@ EOF
 }
 
 test_02_without_doctrine_orm_bridge() {
-    composer remove trollbus/doctrine-orm-bridge > /dev/null 2>&1 || exit 1
+    composer remove trollbus/doctrine-orm-bridge > /dev/null 2>&1 || return 1
 
     local EXPECTED=$(cat <<-EOF
 trollbus:
@@ -165,7 +175,7 @@ EOF
 }
 
 test_03_without_symfony_clock() {
-    composer remove symfony/clock > /dev/null 2>&1 || exit 1
+    composer remove symfony/clock > /dev/null 2>&1 || return 1
 
     local EXPECTED=$(cat <<-EOF
 trollbus:
@@ -202,7 +212,7 @@ EOF
 }
 
 test_04_without_symfony_uid() {
-    composer remove symfony/uid > /dev/null 2>&1 || exit 1
+    composer remove symfony/uid > /dev/null 2>&1 || return 1
 
     local EXPECTED=$(cat <<-EOF
 trollbus:
