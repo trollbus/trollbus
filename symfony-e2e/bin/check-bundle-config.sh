@@ -147,7 +147,7 @@ EOF
 }
 
 test_02_without_doctrine_orm_bridge() {
-    composer remove trollbus/doctrine-orm-bridge > /dev/null 2>&1 || exit 1
+    composer remove trollbus/doctrine-orm-bridge > /dev/null 2>&1 || return 1
 
     local EXPECTED=$(cat <<-EOF
 trollbus:
@@ -175,7 +175,7 @@ EOF
 }
 
 test_03_without_symfony_clock() {
-    composer remove symfony/clock > /dev/null 2>&1 || exit 1
+    composer remove symfony/clock > /dev/null 2>&1 || return 1
 
     local EXPECTED=$(cat <<-EOF
 trollbus:
@@ -212,7 +212,7 @@ EOF
 }
 
 test_04_without_symfony_uid() {
-    composer remove symfony/uid > /dev/null 2>&1 || exit 1
+    composer remove symfony/uid > /dev/null 2>&1 || return 1
 
     local EXPECTED=$(cat <<-EOF
 trollbus:
