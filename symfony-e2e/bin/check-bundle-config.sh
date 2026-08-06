@@ -248,6 +248,43 @@ EOF
     test "$EXPECTED" == "$ACTUAL"
 }
 
+test_05_register_handlers() {
+    bin/console cache:clear > /dev/null 2>&1 || return 1
+
+    local EXPECTED=$(cat <<-EOF
+
+Symfony Container Services Tagged with "trollbus.handler" Tag
+=============================================================
+
+ ------------------------------------------- ------------------------------------------------ --------------- -------------------------------------------------------- ------------------------ -------------------------------------------------------
+  Service ID                                  message                                          handlerType     handlerClass                                             handlerMethod            Class name
+ ------------------------------------------- ------------------------------------------------ --------------- -------------------------------------------------------- ------------------------ -------------------------------------------------------
+  trollbus.handler.0                          App\EntityHandler\Attribute\Event\PostCreated    callable        App\EntityHandler\Attribute\EventListener\PostListener   onPostCreated            Trollbus\MessageBus\Handler\CallableHandler
+  trollbus.handler.1                          App\EntityHandler\Attribute\Event\PostUpdated    callable        App\EntityHandler\Attribute\EventListener\PostListener   onPostUpdated            Trollbus\MessageBus\Handler\CallableHandler
+  trollbus.handler.2                          App\EntityHandler\Attribute\Event\PostCreated    callable        App\EntityHandler\Attribute\EventListener\PostListener   onPostCreatedOrUpdated   Trollbus\MessageBus\Handler\CallableHandler
+   (same service as previous, another tag)    App\EntityHandler\Attribute\Event\PostUpdated    callable        App\EntityHandler\Attribute\EventListener\PostListener   onPostCreatedOrUpdated
+  trollbus.handler.3.with_middlewares         App\Handler\Attribute\SomeCommand                callable        App\Handler\Attribute\AttributeBasedHandler              someCommandHandler       Trollbus\MessageBus\Middleware\HandlerWithMiddlewares
+  trollbus.handler.4                          App\Handler\Attribute\SomeEvent                  callable        App\Handler\Attribute\AttributeBasedHandler              onSomeEvent1             Trollbus\MessageBus\Handler\CallableHandler
+  trollbus.handler.5                          App\Handler\Attribute\SomeEvent                  callable        App\Handler\Attribute\AttributeBasedHandler              onSomeEvent2             Trollbus\MessageBus\Handler\CallableHandler
+  trollbus.handler.6.deferred_event_handler   App\EntityHandler\Attribute\Command\CreatePost   entityFactory   App\EntityHandler\Attribute\Post                         createPost               Trollbus\MessageBus\Middleware\HandlerWithMiddlewares
+  trollbus.handler.7.deferred_event_handler   App\EntityHandler\Attribute\Command\UpdatePost   entity          App\EntityHandler\Attribute\Post                         updatePost               Trollbus\MessageBus\Middleware\HandlerWithMiddlewares
+  trollbus.handler.8.deferred_event_handler   App\EntityHandler\Attribute\Command\UpsertPost   entity          App\EntityHandler\Attribute\Post                         upsertPost               Trollbus\MessageBus\Middleware\HandlerWithMiddlewares
+ ------------------------------------------- ------------------------------------------------ --------------- -------------------------------------------------------- ------------------------ -------------------------------------------------------
+
+
+EOF
+)
+
+    # Use "cat" command to remove output colors
+    local ACTUAL="$(bin/console debug:container --tag trollbus.handler | cat)"
+
+    # Trim right on expected and actual strings
+    EXPECTED=$(echo "$EXPECTED" | sed 's/[[:space:]]*$//')
+    ACTUAL=$(echo "$ACTUAL" | sed 's/[[:space:]]*$//')
+
+    test "$EXPECTED" == "$ACTUAL"
+}
+
 #####################
 # END Declare tests #
 #####################
