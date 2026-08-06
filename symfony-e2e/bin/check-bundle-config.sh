@@ -81,7 +81,17 @@ check_no_code_changes() {
 }
 restore_composer_dependencies() {
     {
-        git checkout HEAD -- . ":!${0}" && \
+        TMP=$(mktemp)
+
+        # 1. Save current file to temp file before
+        # 2. Restore, using git reset hard
+        # 3. Restore current file
+        rm "$TMP" && \
+        cp "${0}" "$TMP" && \
+        git add . && \
+        git reset --hard HEAD && \
+        cat "$TMP" > "${0}" && \
+        rm "${TMP}" && \
         composer install
     } > /dev/null 2>&1
 }
