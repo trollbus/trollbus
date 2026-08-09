@@ -10,6 +10,7 @@
     cacheDirectory="var/psalm"
     ensureOverrideAttribute="false"
     findUnusedIssueHandlerSuppression="false"
+    reportMixedIssues="false"
 >
     <issueHandlers>
         <InternalClass errorLevel="error"/>
