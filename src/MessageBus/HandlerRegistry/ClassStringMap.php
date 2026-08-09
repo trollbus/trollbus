@@ -11,6 +11,11 @@ final class ClassStringMap
 {
     private array $messageClassToHandlerMap = [];
 
+    public static function create(): self
+    {
+        return new self();
+    }
+
     /**
      * @template TResult
      * @template TMessage of Message<TResult>
