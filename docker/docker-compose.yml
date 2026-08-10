@@ -10,6 +10,12 @@ services:
     user: "${UID:?}:${GID:?}"
     command: ["sleep", "infinity"]
     init: true
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: trollbus
+      DB_PASSWORD: 123
+      DB_NAME: trollbus
 
   db:
     build:
