@@ -44,5 +44,8 @@ interface PgmqDriver
      */
     public function sendTopic(string $pattern, string $message, ?string $headers = null, int $delay = 0): void;
 
-    public function disconnect(): void;
+    /**
+     * @param non-empty-string $queue
+     */
+    public function ack(string $queue, int $msgId, bool $archive): void;
 }
