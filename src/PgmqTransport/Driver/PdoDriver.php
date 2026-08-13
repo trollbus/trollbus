@@ -4,51 +4,88 @@ declare(strict_types=1);
 
 namespace Trollbus\PgmqTransport\Driver;
 
+use Revolt\EventLoop;
 use Trollbus\PgmqTransport\PgmqDriver;
+use Trollbus\PgmqTransport\PgmqMessage;
 
 final class PdoDriver implements PgmqDriver
 {
-    private ?\PDO $conn;
+    /** @var array<non-empty-string, \Closure(PgmqMessage): void> */
+    private array $consumers = [];
+
+    private string $listenId = '';
 
     public function __construct(
-        \PDO $conn,
+        private readonly \PDO $conn,
     ) {
-        // todo check driver postgresql
-        // todo check, that pgmq is installed
-        $this->conn = $conn;
+        $driver = $this->conn->getAttribute(\PDO::ATTR_DRIVER_NAME);
+
+        if ('pgsql' !== $driver) {
+            throw new \LogicException(\sprintf('Invalid db driver. Expected "pgsql", actual "%s".', $driver));
+        }
     }
 
     public function createQueue(string $queue): void
     {
-        $this->conn()->prepare("SELECT pgmq.create(':queue')")->execute(['queue' => $queue]);
+        $this->conn->prepare('SELECT pgmq.create(:queue)')->execute(['queue' => $queue]);
+        $this->conn->prepare('SELECT pgmq.enable_notify_insert(:queue);')->execute(['queue' => $queue]);
     }
 
     public function dropQueue(string $queue): void
     {
-        $this->conn()->prepare("SELECT pgmq.drop_queue(':queue')")->execute(['queue' => $queue]);
+        $this->conn->prepare('SELECT pgmq.disable_notify_insert(:queue)')->execute(['queue' => $queue]);
+        $this->conn->prepare('SELECT pgmq.drop_queue(:queue)')->execute(['queue' => $queue]);
     }
 
     public function consume(string $queue, \Closure $callback): \Closure
     {
-        // TODO: Implement consume() method.
+        if (isset($this->consumers[$queue])) {
+            throw new \LogicException(\sprintf('Consumer for queue "%s" already exists.', $queue));
+        }
+
+        $first = [] === $this->consumers;
+        $this->consumers[$queue] = $callback;
+
+        $deferId = EventLoop::defer(function () use ($queue): void {
+            $this->listenQueue($queue);
+            $this->handleAllMessagesInQueue($queue);
+        });
+
+        if ($first) {
+            $this->listenId = EventLoop::repeat(0.1, function (): void {
+                while (false !== ($notify = @$this->conn->pgsqlGetNotify(\PDO::FETCH_ASSOC))) {
+                    $channel = $notify['message'];
+                    $queue = self::channelToQueue($channel);
+                    $this->handleAllMessagesInQueue($queue);
+                }
+            });
+        }
+
+        return function () use ($queue, $deferId): void {
+            unset($this->consumers[$queue]);
+            EventLoop::cancel($deferId);
+            $this->unlistenQueue($queue);
+
+            if ([] === $this->consumers) {
+                EventLoop::cancel($this->listenId);
+            }
+        };
     }
 
     public function bindTopic(string $pattern, string $queue): void
     {
-        $this->conn()->prepare("SELECT pgmq.bind_topic(':pattern', ':queue')")->execute(['pattern' => $pattern, 'queue' => $queue]);
-        $this->conn()->prepare("SELECT pgmq.enable_notify_insert(':queue');")->execute(['queue' => $queue]);
+        $this->conn->prepare('SELECT pgmq.bind_topic(:pattern, :queue)')->execute(['pattern' => $pattern, 'queue' => $queue]);
     }
 
     public function unbindTopic(string $pattern, string $queue): void
     {
-        $this->conn()->prepare("SELECT pgmq.disable_notify_insert(':queue');")->execute(['queue' => $queue]);
-        $this->conn()->prepare("SELECT pgmq.unbind_topic(':pattern', ':queue')")->execute(['pattern' => $pattern, 'queue' => $queue]);
+        $this->conn->prepare('SELECT pgmq.unbind_topic(:pattern, :queue)')->execute(['pattern' => $pattern, 'queue' => $queue]);
     }
 
     public function sendTopic(string $pattern, string $message, ?string $headers = null, int $delay = 0): void
     {
-        $this->conn()
-            ->prepare("select pgmq.send_topic(':pattern', ':message', ':headers', :delay)")
+        $this->conn
+            ->prepare('select pgmq.send_topic(:pattern, :message, :headers, :delay)')
             ->execute([
                 'pattern' => $pattern,
                 'message' => $message,
@@ -57,13 +94,97 @@ final class PdoDriver implements PgmqDriver
             ]);
     }
 
-    public function disconnect(): void
+    public function ack(string $queue, int $msgId, bool $archive): void
     {
-        $this->conn = null;
+        if ($archive) {
+            $this->conn->prepare('SELECT pgmq.archive(:queue, :msg_id::bigint)')
+                ->execute([
+                    'queue' => $queue,
+                    'msg_id' => $msgId,
+                ]);
+        } else {
+            $this->conn->prepare('SELECT pgmq.delete(:queue, :msg_id::bigint)')
+                ->execute([
+                    'queue' => $queue,
+                    'msg_id' => $msgId,
+                ]);
+        }
     }
 
-    private function conn(): \PDO
+    /**
+     * @param non-empty-string $queue
+     */
+    private function handleAllMessagesInQueue(string $queue): void
     {
-        return $this->conn ?? throw new \RuntimeException('Cannot execute query: PDO connection has been closed.');
+        while (true) {
+            $callback = $this->consumers[$queue] ?? null;
+
+            // If no callback, then consumer was canceled
+            if (null === $callback) {
+                return;
+            }
+
+            $message = $this->readNextMessageFromQueue($queue);
+
+            // Skip, if all messages was handled
+            if (null === $message) {
+                return;
+            }
+
+            $callback($message);
+        }
+    }
+
+    private function readNextMessageFromQueue(string $queue): ?PgmqMessage
+    {
+        $stmt = $this->conn->prepare(
+            <<<'SQL'
+                    SELECT * FROM pgmq.read(
+                        queue_name => :queue,
+                        vt         => 30, -- Visibility Timeout, 30s by default
+                        qty        => 1
+                    )        
+                SQL,
+        );
+        $stmt->execute(['queue' => $queue]);
+        $result = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+        if (false === $result) {
+            return null;
+        }
+
+        return PgmqMessage::fromArray($result);
+    }
+
+    private function listenQueue(string $queue): void
+    {
+        $this->conn->exec(\sprintf('LISTEN "%s"', self::queueToChannel($queue)));
+    }
+
+    private function unlistenQueue(string $queue): void
+    {
+        $this->conn->exec(\sprintf('UNLISTEN "%s"', self::queueToChannel($queue)));
+    }
+
+    /**
+     * @param non-empty-string $queue
+     *
+     * @return non-empty-string
+     */
+    private static function queueToChannel(string $queue): string
+    {
+        return "pgmq.q_{$queue}.INSERT";
+    }
+
+    /**
+     * @param non-empty-string $channel
+     *
+     * @return non-empty-string
+     */
+    private static function channelToQueue(string $channel): string
+    {
+        preg_match('/^pgmq\.q_(.+)\.INSERT$/', $channel, $matches);
+
+        return $matches[1];
     }
 }
