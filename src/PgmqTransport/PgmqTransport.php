@@ -11,6 +11,7 @@ use Trollbus\MessageBus\Async\TransportConsumer;
 use Trollbus\MessageBus\Async\TransportPublisher;
 use Trollbus\MessageBus\Async\TransportSetup;
 use Trollbus\MessageBus\Envelope;
+use Trollbus\MessageBus\Transaction\TransactionProvider;
 
 final class PgmqTransport implements TransportPublisher, TransportConsumer, TransportSetup
 {
@@ -18,6 +19,8 @@ final class PgmqTransport implements TransportPublisher, TransportConsumer, Tran
         private readonly PgmqDriver $driver,
         private readonly PgmqMessageEncoder $encoder,
         private readonly PgmqMessageDecoder $decoder,
+        private readonly TransactionProvider $transactionProvider,
+        private readonly bool $archive = false,
     ) {}
 
     public function publish(array $envelopes): void
@@ -26,9 +29,8 @@ final class PgmqTransport implements TransportPublisher, TransportConsumer, Tran
             \assert($envelope instanceof Envelope);
             $topic = $envelope->getStamp(Exchange::class)?->exchange;
 
-            // Skip, if exchange not specified.
             if (null === $topic) {
-                continue;
+                throw new \RuntimeException('Can not resolve topic.');
             }
 
             $encodedMessage = $this->encoder->encode($envelope);
@@ -46,14 +48,18 @@ final class PgmqTransport implements TransportPublisher, TransportConsumer, Tran
     public function runConsume(Consumer $consumer): \Closure
     {
         return $this->driver->consume($consumer->queue, function (PgmqMessage $message) use ($consumer): void {
-            $envelope = $this->decoder->decode($message);
-            $consumer->handle($envelope);
+            $this->transactionProvider->wrapInTransaction(function () use ($message, $consumer): void {
+                $envelope = $this->decoder->decode($message);
+                $consumer->handle($envelope);
+                $this->driver->ack($consumer->queue, $message->id, $this->archive);
+            });
         });
     }
 
     public function disconnect(): void
     {
-        $this->disconnect();
+        // Noop...
+        // Connection with db can be used in other routines
     }
 
     public function setup(array $exchangeToQueues): void
