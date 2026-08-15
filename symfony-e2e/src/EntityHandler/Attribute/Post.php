@@ -42,7 +42,7 @@ final class Post
     }
 
     #[EntityFactoryHandler]
-    #[WithMiddleware(serviceId: MessageTrackMiddleware::MIDDLEWARE)]
+    #[WithMiddleware(MessageTrackMiddleware::MIDDLEWARE)]
     public static function createPost(CreatePost $command, MessageContext $context): self
     {
         $post = new self(
@@ -60,7 +60,7 @@ final class Post
     }
 
     #[EntityHandler(findBy: ['id' => 'id'])]
-    #[WithMiddleware(serviceId: MessageTrackMiddleware::MIDDLEWARE)]
+    #[WithMiddleware(MessageTrackMiddleware::MIDDLEWARE)]
     public function updatePost(UpdatePost $command, MessageContext $context): void
     {
         $this->title = $command->title;
@@ -74,7 +74,7 @@ final class Post
     }
 
     #[EntityHandler(findBy: ['id' => 'id'], factoryMethod: 'upsertCreatePost')]
-    #[WithMiddleware(serviceId: MessageTrackMiddleware::MIDDLEWARE)]
+    #[WithMiddleware(MessageTrackMiddleware::MIDDLEWARE)]
     public function upsertPost(UpsertPost $command, MessageContext $context): void
     {
         // Skip, if post was created
