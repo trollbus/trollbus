@@ -37,6 +37,29 @@ final class PdoDriver implements PgmqDriver
         $this->conn->prepare('SELECT pgmq.drop_queue(:queue)')->execute(['queue' => $queue]);
     }
 
+    public function send(string $queue, string $message, ?string $headers = null, int $delay = 0): void
+    {
+        $this->conn
+            ->prepare('SELECT pgmq.send(:queue, :message, :headers, :delay)')
+            ->execute([
+                'queue' => $queue,
+                'message' => $message,
+                'headers' => $headers,
+                'delay' => $delay,
+            ]);
+    }
+
+    public function setVisibilityTimeout(string $queue, int $msgId, int $visibilityTimeout): void
+    {
+        $this->conn
+            ->prepare('SELECT * FROM pgmq.set_vt(:queue, :msgId, :vt);')
+            ->execute([
+                'queue' => $queue,
+                'msgId' => $msgId,
+                'vt' => $visibilityTimeout,
+            ]);
+    }
+
     public function consume(string $queue, \Closure $callback): \Closure
     {
         if (isset($this->consumers[$queue])) {

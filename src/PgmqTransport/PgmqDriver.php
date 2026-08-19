@@ -18,6 +18,20 @@ interface PgmqDriver
 
     /**
      * @param non-empty-string $queue
+     * @param non-empty-string $message
+     * @param non-empty-string|null $headers
+     * @param non-negative-int $delay
+     */
+    public function send(string $queue, string $message, ?string $headers = null, int $delay = 0): void;
+
+    /**
+     * @param non-empty-string $queue
+     * @param non-negative-int $visibilityTimeout
+     */
+    public function setVisibilityTimeout(string $queue, int $msgId, int $visibilityTimeout): void;
+
+    /**
+     * @param non-empty-string $queue
      * @param \Closure(PgmqMessage): void $callback
      *
      * @return \Closure(): void the cancel function
