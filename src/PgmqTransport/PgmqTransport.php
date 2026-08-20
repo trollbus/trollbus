@@ -25,7 +25,7 @@ final class PgmqTransport implements TransportPublisher, TransportConsumer, Tran
         private readonly PgmqMessageEncoder $encoder,
         private readonly PgmqMessageDecoder $decoder,
         private readonly TransactionProvider $transactionProvider,
-        private readonly string $dealLettersQueue = 'deal_letters',
+        private readonly string $dealLettersQueue = 'dead_letters',
         private readonly bool $archive = false,
     ) {}
 
