@@ -79,7 +79,7 @@ final class PgmqTransport implements TransportPublisher, TransportConsumer, Tran
                 });
             } catch (\Throwable $exception) {
                 $retry = $envelope->getStamp(Retry::class);
-                $timeout = $retry?->timeouts[$pgmqMessage->readCount] ?? null;
+                $timeout = $retry?->timeouts[$pgmqMessage->readCount - 1] ?? null;
 
                 if (null === $timeout) {
                     $this->transactionProvider->wrapInTransaction(function () use ($pgmqMessage, $consumer, $exception): void {
