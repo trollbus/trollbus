@@ -57,7 +57,7 @@ final class PgmqTransport implements TransportPublisher, TransportConsumer, Tran
             try {
                 $envelope = $this->decoder->decode($pgmqMessage);
             } catch (\Throwable $exception) {
-                $this->sendToDealLetterQueue($pgmqMessage, $exception);
+                $this->sendToDealLetterQueue($pgmqMessage, $consumer->queue, $exception);
 
                 return;
             }
@@ -84,7 +84,7 @@ final class PgmqTransport implements TransportPublisher, TransportConsumer, Tran
                 if (null === $timeout) {
                     $this->transactionProvider->wrapInTransaction(function () use ($pgmqMessage, $consumer, $exception): void {
                         $this->driver->ack(queue: $consumer->queue, msgId: $pgmqMessage->id, archive: $this->archive);
-                        $this->sendToDealLetterQueue($pgmqMessage, $exception);
+                        $this->sendToDealLetterQueue($pgmqMessage, $consumer->queue, $exception);
                     });
                 } else {
                     $this->driver->setVisibilityTimeout(
@@ -119,12 +119,12 @@ final class PgmqTransport implements TransportPublisher, TransportConsumer, Tran
         }
     }
 
-    private function sendToDealLetterQueue(PgmqMessage $pgmqMessage, \Throwable $exception): void
+    private function sendToDealLetterQueue(PgmqMessage $pgmqMessage, string $origQueue, \Throwable $exception): void
     {
-        $origHeaders = null !== $pgmqMessage->headers ? json_decode($pgmqMessage->headers, true) : null;
-        $headers = [
-            'orig' => $origHeaders,
+        $headers = null !== $pgmqMessage->headers ? (array) json_decode($pgmqMessage->headers, true) : [];
+        $headers['_dlq'] = [
             'exception' => self::normalizeException($exception),
+            'origQueue' => $origQueue,
         ];
 
         $this->driver->send(
@@ -142,7 +142,10 @@ final class PgmqTransport implements TransportPublisher, TransportConsumer, Tran
             'code' => $e->getCode(),
             'file' => $e->getFile(),
             'line' => $e->getLine(),
-            'trace' => $e->getTrace(),
+            // PGMQ rejects messages containing null-bytes.
+            // $e->getTrace() returns an array with binary data that cannot be sent to the queue.
+            // Use getTraceAsString() - returns a string without null-bytes.
+            'trace' => $e->getTraceAsString(),
         ];
 
         if (null !== ($previous = $e->getPrevious())) {
