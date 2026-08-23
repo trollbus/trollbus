@@ -69,14 +69,26 @@ final class PdoDriver implements PgmqDriver
         $first = [] === $this->consumers;
         $this->consumers[$queue] = $callback;
 
+        // $deferId triggers an immediate one-time processing of the queue
+        // to handle messages that arrived before the listener was set up.
         $deferId = EventLoop::defer(function () use ($queue): void {
             $this->listenQueue($queue);
             $this->handleAllMessagesInQueue($queue);
         });
 
+        // $pollId is required because LISTEN/NOTIFY works only on INSERT.
+        // It does not fire on retry (UPDATE vt) or on messages with delay.
+        // Polling every 1s ensures delayed/retried messages are eventually processed.
+        $pollId = EventLoop::repeat(1, fn() => $this->handleAllMessagesInQueue($queue));
+
+        // $this->listenId is a global listener, not per-queue.
+        // pgsqlGetNotify() returns notifications for all LISTEN channels,
+        // so one instance is sufficient for processing all queues.
         if ($first) {
             $this->listenId = EventLoop::repeat(0.1, function (): void {
-                while (false !== ($notify = @$this->conn->pgsqlGetNotify(\PDO::FETCH_ASSOC))) {
+                $notify = @$this->conn->pgsqlGetNotify(\PDO::FETCH_ASSOC);
+
+                while (false !== $notify) {
                     $channel = $notify['message'];
                     $queue = self::channelToQueue($channel);
                     $this->handleAllMessagesInQueue($queue);
@@ -84,9 +96,10 @@ final class PdoDriver implements PgmqDriver
             });
         }
 
-        return function () use ($queue, $deferId): void {
+        return function () use ($queue, $deferId, $pollId): void {
             unset($this->consumers[$queue]);
             EventLoop::cancel($deferId);
+            EventLoop::cancel($pollId);
             $this->unlistenQueue($queue);
 
             if ([] === $this->consumers) {
