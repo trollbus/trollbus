@@ -10,6 +10,7 @@ use Trollbus\MessageBus\Async\Delay\Delay;
 use Trollbus\MessageBus\Async\Exchange\Exchange;
 use Trollbus\MessageBus\Async\MessageType\OrigClassMessageTypeResolver;
 use Trollbus\MessageBus\Async\ObjectNormalizer\PhpNativeSerializer;
+use Trollbus\MessageBus\Async\Retry\Retry;
 use Trollbus\MessageBus\Async\TransportConsumer;
 use Trollbus\MessageBus\Envelope;
 use Trollbus\MessageBus\Handler\CallableHandler;
@@ -129,7 +130,11 @@ abstract class PgmqTransportTestCase extends TransportTestCase
     {
         [$transportPublisher, $transportConsumer, $transportSetup] = $this->createTransport(true);
         $transportSetup->setup(['topic' => ['queue_a']]);
-        $transportPublisher->publish([Envelope::wrap(new TransportTestCase\TransportTestEvent(), new Exchange('topic'), new MessageId('123'))]);
+        $transportPublisher->publish([Envelope::wrap(
+            new TransportTestCase\TransportTestEvent(),
+            new Exchange('topic'),
+            new MessageId('123'),
+        )]);
 
         $handled = false;
         $this->runConsumer($transportConsumer,'queue_a', function() use (&$handled) {
@@ -156,7 +161,11 @@ abstract class PgmqTransportTestCase extends TransportTestCase
     {
         [$transportPublisher, $transportConsumer, $transportSetup] = $this->createTransport(true);
         $transportSetup->setup(['topic' => ['queue_a']]);
-        $transportPublisher->publish([Envelope::wrap(new TransportTestCase\TransportTestEvent(), new Exchange('topic'), new VisibilityTimeout(600))]);
+        $transportPublisher->publish([Envelope::wrap(
+            new TransportTestCase\TransportTestEvent(),
+            new Exchange('topic'),
+            new VisibilityTimeout(600),
+        )]);
 
         $vt = null;
         $this->runConsumer($transportConsumer,'queue_a', function() use (&$vt) {
@@ -171,9 +180,74 @@ abstract class PgmqTransportTestCase extends TransportTestCase
         self::assertSame(600, $vt);
     }
 
-    // todo retry success second
+    public function testRetrySuccess(): void
+    {
+        [$transportPublisher, $transportConsumer, $transportSetup] = $this->createTransport(true);
+        $transportSetup->setup(['topic' => ['queue_a']]);
+        $transportPublisher->publish([Envelope::wrap(
+            new TransportTestCase\TransportTestEvent(),
+            new Exchange('topic'),
+            new Retry([1]),
+        )]);
 
-    // todo retry no success
+        $attempt = 0;
+        $success = false;
+
+        $this->runConsumer(
+            transportConsumer: $transportConsumer,
+            queue: 'queue_a',
+            callback: function() use (&$attempt, &$success) {
+                ++$attempt;
+
+                if (2 !== $attempt) {
+                    throw new \RuntimeException();
+                }
+
+                $success = true;
+            },
+            delay: 3,
+        );
+
+        // Expects success after 2nd attempt (1st retry)
+        self::assertSame(2, $attempt);
+        self::assertTrue($success);
+    }
+
+    public function testRetryFail(): void
+    {
+        [$transportPublisher, $transportConsumer, $transportSetup] = $this->createTransport(true);
+        $transportSetup->setup(['topic' => ['queue_a']]);
+        $transportPublisher->publish([$envelope = Envelope::wrap(
+            new TransportTestCase\TransportTestEvent(),
+            new Exchange('topic'),
+            new Retry([1]),
+        )]);
+
+        $attempt = 0;
+
+        $this->runConsumer($transportConsumer, 'queue_a', function() use (&$attempt) {
+            ++$attempt;
+
+            throw new \RuntimeException('Consumer error.');
+        }, 3);
+
+        // Check asstempts count of consume message
+        self::assertSame(2, $attempt);
+
+        // Check, that message was sent to deal_letters
+        $pgmqMessage = $this->popFromQueue('dead_letters');
+
+        self::assertInstanceOf(PgmqMessage::class, $pgmqMessage);
+
+        $headers = json_decode((string) $pgmqMessage->headers, true, flags: JSON_THROW_ON_ERROR);
+        self::assertSame('Consumer error.', $headers['_dlq']['exception']['message'] ?? null);
+        self::assertSame(\RuntimeException::class, $headers['_dlq']['exception']['class'] ?? null);
+
+        self::assertSame(
+            json_encode((new PhpNativeSerializer())->normalize($envelope)),
+            $pgmqMessage->value,
+        );
+    }
 
     private function queueExists(string $queue): bool
     {
