@@ -82,10 +82,7 @@ final class PgmqTransport implements TransportPublisher, TransportConsumer, Tran
                 $timeout = $retry?->timeouts[$pgmqMessage->readCount - 1] ?? null;
 
                 if (null === $timeout) {
-                    $this->transactionProvider->wrapInTransaction(function () use ($pgmqMessage, $consumer, $exception): void {
-                        $this->driver->ack(queue: $consumer->queue, msgId: $pgmqMessage->id, archive: $this->archive);
-                        $this->sendToDealLetterQueue($pgmqMessage, $consumer->queue, $exception);
-                    });
+                    $this->sendToDealLetterQueue($pgmqMessage, $consumer->queue, $exception);
                 } else {
                     $this->driver->setVisibilityTimeout(
                         queue: $consumer->queue,
@@ -127,11 +124,14 @@ final class PgmqTransport implements TransportPublisher, TransportConsumer, Tran
             'origQueue' => $origQueue,
         ];
 
-        $this->driver->send(
-            queue: $this->dealLettersQueue,
-            message: $pgmqMessage->value,
-            headers: json_encode($headers, JSON_THROW_ON_ERROR),
-        );
+        $this->transactionProvider->wrapInTransaction(function() use ($pgmqMessage, $origQueue, $headers): void {
+            $this->driver->ack(queue: $origQueue, msgId: $pgmqMessage->id, archive: $this->archive);
+            $this->driver->send(
+                queue: $this->dealLettersQueue,
+                message: $pgmqMessage->value,
+                headers: json_encode($headers, JSON_THROW_ON_ERROR),
+            );
+        });
     }
 
     private static function normalizeException(\Throwable $e): array
