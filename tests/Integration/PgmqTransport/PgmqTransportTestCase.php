@@ -159,7 +159,7 @@ abstract class PgmqTransportTestCase extends TransportTestCase
 
     public function testAppliesVisibilityTimeout(): void
     {
-        [$transportPublisher, $transportConsumer, $transportSetup] = $this->createTransport(true);
+        [$transportPublisher, $transportConsumer, $transportSetup] = $this->createTransport();
         $transportSetup->setup(['topic' => ['queue_a']]);
         $transportPublisher->publish([Envelope::wrap(
             new TransportTestCase\TransportTestEvent(),
@@ -182,7 +182,7 @@ abstract class PgmqTransportTestCase extends TransportTestCase
 
     public function testRetrySuccess(): void
     {
-        [$transportPublisher, $transportConsumer, $transportSetup] = $this->createTransport(true);
+        [$transportPublisher, $transportConsumer, $transportSetup] = $this->createTransport();
         $transportSetup->setup(['topic' => ['queue_a']]);
         $transportPublisher->publish([Envelope::wrap(
             new TransportTestCase\TransportTestEvent(),
@@ -215,7 +215,7 @@ abstract class PgmqTransportTestCase extends TransportTestCase
 
     public function testRetryFail(): void
     {
-        [$transportPublisher, $transportConsumer, $transportSetup] = $this->createTransport(true);
+        [$transportPublisher, $transportConsumer, $transportSetup] = $this->createTransport();
         $transportSetup->setup(['topic' => ['queue_a']]);
         $transportPublisher->publish([$envelope = Envelope::wrap(
             new TransportTestCase\TransportTestEvent(),
@@ -249,6 +249,60 @@ abstract class PgmqTransportTestCase extends TransportTestCase
         );
     }
 
+    public function testRunManyConsumers(): void
+    {
+        [$transportPublisher, $transportConsumer, $transportSetup] = $this->createTransport();
+        $transportSetup->setup(['topic' => ['queue_a', 'queue_b', 'queue_c']]);
+
+        for ($i = 0; $i < 4; ++$i) {
+            EventLoop::delay(0.1 * $i, function(string $id) use ($transportPublisher) {
+                $transportPublisher->publish([Envelope::wrap(
+                    new TransportTestCase\TransportTestEvent(),
+                    new Exchange('topic'),
+                )]);
+            });
+        }
+
+        $handledQueueA = 0;
+        $this->runConsumer(
+            transportConsumer: $transportConsumer,
+            queue: 'queue_a',
+            callback: function() use (&$handledQueueA): void {
+                ++$handledQueueA;
+            },
+            delay: 1,
+            runEventLoop: false,
+        );
+
+        $handledQueueB = 0;
+        $this->runConsumer(
+            transportConsumer: $transportConsumer,
+            queue: 'queue_b',
+            callback: function() use (&$handledQueueB): void {
+                ++$handledQueueB;
+            },
+            delay: 1,
+            runEventLoop: false,
+        );
+
+        $handledQueueC = 0;
+        $this->runConsumer(
+            transportConsumer: $transportConsumer,
+            queue: 'queue_c',
+            callback: function() use (&$handledQueueC): void {
+                ++$handledQueueC;
+            },
+            delay: 1,
+            runEventLoop: false,
+        );
+
+        EventLoop::run();
+
+        self::assertSame(4, $handledQueueA);
+        self::assertSame(4, $handledQueueB);
+        self::assertSame(4, $handledQueueC);
+    }
+
     private function queueExists(string $queue): bool
     {
         $conn = PgmqTool::connectToPostgresViaPdo();
@@ -275,8 +329,13 @@ abstract class PgmqTransportTestCase extends TransportTestCase
     /**
      * @param (\Closure(TransportTestCase\TransportTestEvent): void)|null $callback
      */
-    private function runConsumer(TransportConsumer $transportConsumer, string $queue, ?\Closure $callback = null, float $delay = 0.01): void
-    {
+    private function runConsumer(
+        TransportConsumer $transportConsumer,
+        string $queue,
+        ?\Closure $callback = null,
+        float $delay = 0.01,
+        bool $runEventLoop = true,
+    ): void {
         $consumer = new Consumer(
             queue: $queue,
             handlerRegistry: new ClassStringMapHandlerRegistry(
@@ -294,6 +353,8 @@ abstract class PgmqTransportTestCase extends TransportTestCase
             EventLoop::cancel($id);
         });
 
-        EventLoop::run();
+        if ($runEventLoop) {
+            EventLoop::run();
+        }
     }
 }
