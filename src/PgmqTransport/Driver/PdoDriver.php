@@ -40,7 +40,7 @@ final class PdoDriver implements PgmqDriver
     public function send(string $queue, string $message, ?string $headers = null, int $delay = 0): void
     {
         $this->conn
-            ->prepare('SELECT pgmq.send(:queue, :message, :headers, :delay)')
+            ->prepare('SELECT pgmq.send(:queue, :message::jsonb, :headers::jsonb, :delay::integer)')
             ->execute([
                 'queue' => $queue,
                 'message' => $message,
@@ -52,7 +52,7 @@ final class PdoDriver implements PgmqDriver
     public function setVisibilityTimeout(string $queue, int $msgId, int $visibilityTimeout): void
     {
         $this->conn
-            ->prepare('SELECT * FROM pgmq.set_vt(:queue, :msgId, :vt);')
+            ->prepare('SELECT * FROM pgmq.set_vt(:queue, :msgId::bigint, :vt::integer);')
             ->execute([
                 'queue' => $queue,
                 'msgId' => $msgId,
@@ -128,7 +128,7 @@ final class PdoDriver implements PgmqDriver
     public function sendTopic(string $pattern, string $message, ?string $headers = null, int $delay = 0): void
     {
         $this->conn
-            ->prepare('select pgmq.send_topic(:pattern, :message, :headers, :delay)')
+            ->prepare('select pgmq.send_topic(:pattern, :message::jsonb, :headers::jsonb, :delay::integer)')
             ->execute([
                 'pattern' => $pattern,
                 'message' => $message,
