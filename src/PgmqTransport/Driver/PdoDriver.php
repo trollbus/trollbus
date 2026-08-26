@@ -86,11 +86,18 @@ final class PdoDriver implements PgmqDriver
         // so one instance is sufficient for processing all queues.
         if ($first) {
             $this->listenId = EventLoop::repeat(0.1, function (): void {
-                $notify = @$this->conn->pgsqlGetNotify(\PDO::FETCH_ASSOC);
+                $queues = [];
 
-                while (false !== $notify) {
+                while (false !== ($notify = @$this->conn->pgsqlGetNotify(\PDO::FETCH_ASSOC))) {
                     $channel = $notify['message'];
                     $queue = self::channelToQueue($channel);
+
+                    if (!in_array($queue, $queues, true)) {
+                        $queues[] = $queue;
+                    }
+                }
+
+                foreach ($queues as $queue) {
                     $this->handleAllMessagesInQueue($queue);
                 }
             });
