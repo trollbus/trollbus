@@ -23,6 +23,12 @@ final class PgmqTool
             dbname: 'postgres',
         );
         $conn = self::connectToPostgresViaPdo($configForRecreateDb);
+        $conn->exec(<<<SQL
+            SELECT pg_terminate_backend(pid) 
+            FROM pg_stat_activity 
+            WHERE datname = 'trollbus' 
+              AND pid <> pg_backend_pid();
+        SQL);
         $conn->exec("DROP DATABASE IF EXISTS {$config->dbname}");
 
         try {
