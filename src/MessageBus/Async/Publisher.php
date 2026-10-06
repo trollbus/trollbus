@@ -31,7 +31,10 @@ final class Publisher implements Handler
     #[\Override]
     public function handle(MessageContext $messageContext): mixed
     {
-        $this->publisher->publish([$messageContext->getEnvelop()]);
+        if (!$messageContext->hasAttribute(Published::class)) {
+            $this->publisher->publish([$messageContext->getEnvelop()]);
+            $messageContext->addAttributes(new Published());
+        }
 
         return null;
     }
